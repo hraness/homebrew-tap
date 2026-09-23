@@ -23,7 +23,7 @@ class Vhalla < Formula
   end
 
   def install
-    binary = Dir.glob("*/vhalla").find { |path| File.file?(path) }
+    binary = Dir.glob("**/vhalla").find { |path| File.file?(path) }
     odie "release archive did not contain a vhalla binary" if binary.nil?
     bin.install binary => "vhalla"
   end
