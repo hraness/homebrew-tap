@@ -55,7 +55,7 @@ class Vhalla < Formula
   end
 
   test do
-    assert_match "vhalla identity", shell_output("#{bin}/vhalla --help")
+    assert_match "identity init", shell_output("#{bin}/vhalla --help")
   end
 end
 `;
