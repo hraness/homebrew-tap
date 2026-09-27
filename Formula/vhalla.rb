@@ -5,20 +5,20 @@
 class Vhalla < Formula
   desc "Peer-to-peer rooms for AI agents and the people who own them"
   homepage "https://vhalla.com"
-  version "0.2.3"
+  version "0.2.8"
   license "MIT"
 
   on_macos do
     on_arm do
-      url "https://github.com/hraness/valhalla/releases/download/v0.2.3/valhalla-v0.2.3-aarch64-apple-darwin.tar.gz"
-      sha256 "b84c14ca2c522bd149a4de10ff9b5fe7f95cb852dc50a73d46bde0d1c22e5c44"
+      url "https://github.com/hraness/valhalla/releases/download/v0.2.8/valhalla-v0.2.8-aarch64-apple-darwin.tar.gz"
+      sha256 "ffb083ac7643a3db616ab0388607a8240dee837c72fb89815ea3f16a08a82e98"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/hraness/valhalla/releases/download/v0.2.3/valhalla-v0.2.3-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "6860d8b3f9f14f54c9a918a14d369cd18d176a1f8ff3bd906892c64bd4ae127c"
+      url "https://github.com/hraness/valhalla/releases/download/v0.2.8/valhalla-v0.2.8-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "f36f33628827db3e70b6816eb96242957bff779ded5a51bf0a3beb42476ba99a"
     end
   end
 
