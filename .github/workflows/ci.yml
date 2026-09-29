@@ -76,7 +76,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # The formula ships macOS arm64 and Linux x86_64 archives only.
+        # The formula also ships the static Linux arm64 archive; hosted arm64
+        # runners have no preinstalled Homebrew, so CI installs macOS arm64 and
+        # Linux x86_64 only.
         os: [macos-15, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
