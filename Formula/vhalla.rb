@@ -9,15 +9,19 @@ class Vhalla < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/hraness/valhalla/releases/download/v0.2.8/valhalla-v0.2.8-aarch64-apple-darwin.tar.gz"
-      sha256 "ffb083ac7643a3db616ab0388607a8240dee837c72fb89815ea3f16a08a82e98"
+      url "https://github.com/hraness/valhalla/releases/download/v0.2.10/valhalla-v0.2.10-aarch64-apple-darwin.tar.gz"
+      sha256 "8bd7bcf895fe87b74fd711634e6ee8172881b0366ab31cddc3d9f0fa65affd06"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/hraness/valhalla/releases/download/v0.2.8/valhalla-v0.2.8-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "f36f33628827db3e70b6816eb96242957bff779ded5a51bf0a3beb42476ba99a"
+      url "https://github.com/hraness/valhalla/releases/download/v0.2.10/valhalla-v0.2.10-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "74bdc766f6b3f229d01c61bbd918370355cd928ae54fcf239f900660839701f9"
+    end
+    on_arm do
+      url "https://github.com/hraness/valhalla/releases/download/v0.2.10/valhalla-v0.2.10-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "452b337274002da987d501ffd30eb07ec616c25783f2c11a9c3400910bb661c4"
     end
   end
 

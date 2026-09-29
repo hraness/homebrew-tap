@@ -14,6 +14,7 @@ const base = `https://github.com/hraness/valhalla/releases/download/${tag}`;
 const assets = {
   'aarch64-apple-darwin': `valhalla-${tag}-aarch64-apple-darwin.tar.gz`,
   'x86_64-unknown-linux-gnu': `valhalla-${tag}-x86_64-unknown-linux-gnu.tar.gz`,
+  'aarch64-unknown-linux-musl': `valhalla-${tag}-aarch64-unknown-linux-musl.tar.gz`,
 };
 
 const sums = {};
@@ -47,6 +48,10 @@ class Vhalla < Formula
     on_intel do
       url "${base}/${assets['x86_64-unknown-linux-gnu']}"
       sha256 "${sums['x86_64-unknown-linux-gnu']}"
+    end
+    on_arm do
+      url "${base}/${assets['aarch64-unknown-linux-musl']}"
+      sha256 "${sums['aarch64-unknown-linux-musl']}"
     end
   end
 
