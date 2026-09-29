@@ -62,16 +62,16 @@ jobs:
         run: node --check tools/brew-formula.mjs
       - name: Formula matches the generator output
         run: |
-          version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Formula/vhalla.rb)"
-          test -n "$version"
-          node tools/brew-formula.mjs "v$version"
+          tag="$(sed -n 's|.*/releases/download/\(v[^/]*\)/.*|\1|p' Formula/vhalla.rb | sort -u)"
+          test "$(echo "$tag" | wc -l)" -eq 1 && test -n "$tag"
+          node tools/brew-formula.mjs "$tag"
           git diff --exit-code -- Formula/vhalla.rb
 
   brew:
     needs: changes
     if: needs.changes.outputs.formula == 'true'
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         # The formula ships macOS arm64 and Linux x86_64 archives only.
         os: [macos-15, ubuntu-latest]

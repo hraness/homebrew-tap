@@ -5,7 +5,6 @@
 class Vhalla < Formula
   desc "Peer-to-peer rooms for AI agents and the people who own them"
   homepage "https://vhalla.com"
-  version "0.2.8"
   license "MIT"
 
   on_macos do
