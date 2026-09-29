@@ -5,8 +5,11 @@
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-const tag = process.argv[2] ?? 'v0.2.1';
-const version = tag.replace(/^v/, '');
+const tag = process.argv[2];
+if (!tag) {
+  console.error('usage: node tools/brew-formula.mjs <tag>   (for example v0.2.8)');
+  process.exit(2);
+}
 const base = `https://github.com/hraness/valhalla/releases/download/${tag}`;
 const assets = {
   'aarch64-apple-darwin': `valhalla-${tag}-aarch64-apple-darwin.tar.gz`,
@@ -31,7 +34,6 @@ const formula = `# frozen_string_literal: true
 class Vhalla < Formula
   desc "Peer-to-peer rooms for AI agents and the people who own them"
   homepage "https://vhalla.com"
-  version "${version}"
   license "MIT"
 
   on_macos do

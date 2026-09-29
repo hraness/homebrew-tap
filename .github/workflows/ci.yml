@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_ANALYTICS: "1"
+  HOMEBREW_NO_ENV_HINTS: "1"
+  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+
+jobs:
+  # Path gate lives inside the workflow so `Required` always reports.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      formula: ${{ steps.filter.outputs.formula }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: blob:none
+      - id: filter
+        name: Detect formula changes
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ "$EVENT" != "pull_request" ] && [ "$EVENT" != "push" ]; then
+            echo "formula=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo "formula=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          changed="$(git diff --name-only "$BASE" HEAD)"
+          echo "$changed"
+          if echo "$changed" | grep -qE '^(Formula/|tools/|\.github/workflows/)'; then
+            echo "formula=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "formula=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  lint:
+    needs: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Ruby syntax
+        run: for f in Formula/*.rb; do ruby -c "$f"; done
+      - name: Generator syntax
+        run: node --check tools/brew-formula.mjs
+      - name: Formula matches the generator output
+        # Fetches release sidecars, so only run it when the formula side changed.
+        if: needs.changes.outputs.formula == 'true'
+        run: |
+          tag="$(sed -n 's|.*/releases/download/\(v[^/]*\)/.*|\1|p' Formula/vhalla.rb | sort -u)"
+          test "$(echo "$tag" | wc -l)" -eq 1 && test -n "$tag"
+          node tools/brew-formula.mjs "$tag"
+          git diff --exit-code -- Formula/vhalla.rb
+
+  brew:
+    needs: changes
+    if: needs.changes.outputs.formula == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        # The formula ships macOS arm64 and Linux x86_64 archives only.
+        os: [macos-15, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Put Homebrew on PATH (Linux)
+        if: runner.os == 'Linux'
+        run: echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
+      - name: Tap this checkout as hraness/tap
+        run: |
+          tap="$(brew --repository)/Library/Taps/hraness/homebrew-tap"
+          mkdir -p "$(dirname "$tap")"
+          rm -rf "$tap"
+          ln -s "$GITHUB_WORKSPACE" "$tap"
+          brew tap
+      - name: brew style
+        run: brew style hraness/tap
+      - name: brew audit
+        run: brew audit --strict --formula hraness/tap/vhalla
+      - name: brew install
+        run: brew install --build-from-source hraness/tap/vhalla
+      - name: brew test
+        run: brew test hraness/tap/vhalla
+
+  Required:
+    if: always()
+    needs: [changes, lint, brew]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: All gates passed or were skipped by the path gate
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for r in $RESULTS; do
+            case "$r" in success|skipped) ;; *) exit 1 ;; esac
+          done
