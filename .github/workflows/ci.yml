@@ -27,7 +27,7 @@ jobs:
     outputs:
       formula: ${{ steps.filter.outputs.formula }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           filter: blob:none
@@ -52,15 +52,18 @@ jobs:
           fi
 
   lint:
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Ruby syntax
         run: for f in Formula/*.rb; do ruby -c "$f"; done
       - name: Generator syntax
         run: node --check tools/brew-formula.mjs
       - name: Formula matches the generator output
+        # Fetches release sidecars, so only run it when the formula side changed.
+        if: needs.changes.outputs.formula == 'true'
         run: |
           tag="$(sed -n 's|.*/releases/download/\(v[^/]*\)/.*|\1|p' Formula/vhalla.rb | sort -u)"
           test "$(echo "$tag" | wc -l)" -eq 1 && test -n "$tag"
@@ -78,7 +81,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Put Homebrew on PATH (Linux)
         if: runner.os == 'Linux'
         run: echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"

@@ -5,7 +5,11 @@
 import { writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-const tag = process.argv[2] ?? 'v0.2.1';
+const tag = process.argv[2];
+if (!tag) {
+  console.error('usage: node tools/brew-formula.mjs <tag>   (for example v0.2.8)');
+  process.exit(2);
+}
 const base = `https://github.com/hraness/valhalla/releases/download/${tag}`;
 const assets = {
   'aarch64-apple-darwin': `valhalla-${tag}-aarch64-apple-darwin.tar.gz`,
