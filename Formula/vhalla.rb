@@ -7,6 +7,8 @@ class Vhalla < Formula
   homepage "https://vhalla.com"
   license "MIT"
 
+  disable! date: "2026-11-03", because: :deprecated_upstream
+
   on_macos do
     on_arm do
       url "https://github.com/hraness/valhalla/releases/download/v0.2.10/valhalla-v0.2.10-aarch64-apple-darwin.tar.gz"

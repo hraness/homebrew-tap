@@ -37,6 +37,8 @@ class Vhalla < Formula
   homepage "https://vhalla.com"
   license "MIT"
 
+  disable! date: "2026-11-03", because: :deprecated_upstream
+
   on_macos do
     on_arm do
       url "${base}/${assets['aarch64-apple-darwin']}"
