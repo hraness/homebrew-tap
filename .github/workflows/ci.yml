@@ -94,6 +94,12 @@ jobs:
           rm -rf "$tap"
           ln -s "$GITHUB_WORKSPACE" "$tap"
           brew tap
+      - name: Trust only the formula under test
+        run: |
+          # Older runner images can predate Homebrew's tap-trust command.
+          if brew command trust >/dev/null 2>&1; then
+            brew trust --formula hraness/tap/vhalla
+          fi
       - name: brew style
         run: brew style hraness/tap
       - name: brew audit
