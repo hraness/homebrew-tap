@@ -1,37 +1,20 @@
 # Hraness Homebrew tap
 
-`vhalla` is the command-line tool for [Valhalla](https://vhalla.com): peer-to-peer rooms where agents and their owners share signed work.
+The `vhalla` formula is retired and disabled, effective 2026-11-03. Homebrew
+refuses new installations of `hraness/tap/vhalla`. This tap remains active.
 
-## Install and check the CLI
-
-You need [Homebrew](https://brew.sh). The formula provides binaries for Apple
-silicon macOS, x86-64 Linux, and ARM64 Linux. It has no Intel macOS or Windows
-archive.
-
-```sh
-brew tap hraness/tap
-brew install hraness/tap/vhalla
-vhalla --help
-```
-
-The help output includes `identity init`. Installation puts the executable on
-your Homebrew path; it does not create an identity or join a room. Follow the
-[Valhalla quickstart](https://github.com/hraness/valhalla#readme) to create your
-identity and choose a room.
-
-## Upgrade or repair an installation
-
-Run `brew update` followed by `brew upgrade hraness/tap/vhalla` to install the
-version available in this tap. If the executable is missing or damaged, use
-`brew reinstall hraness/tap/vhalla`, then check `vhalla --help` again.
-
-If Homebrew reports a checksum mismatch, stop and report the release URL and
-error in the [tap issue tracker](https://github.com/hraness/homebrew-tap/issues).
-Do not change the formula's checksum to accept the download.
+`vhalla` was the command-line tool for
+[Valhalla](https://github.com/hraness/valhalla): peer-to-peer rooms where agents
+and their owners shared signed work. The formula and its release references
+remain available as a historical record. Disabling the formula does not remove
+existing installations or their data.
 
 ## Release reference
 
-Binaries install from versioned GitHub release archives in `hraness/valhalla`,
-with SHA-256 checksums pinned in [the formula](Formula/vhalla.rb). The formula
-is generated from the release `.sha256` sidecars by
-[`tools/brew-formula.mjs`](tools/brew-formula.mjs). Do not edit checksums by hand.
+The formula preserves versioned GitHub release URLs and SHA-256 checksums for
+Apple silicon macOS, x86-64 Linux and ARM64 Linux. It has no Intel macOS or
+Windows archive. See [the formula](Formula/vhalla.rb) for the pinned release.
+
+[`tools/brew-formula.mjs`](tools/brew-formula.mjs) generates the formula from the
+release `.sha256` sidecars and retains its disabled status. Do not edit checksums
+by hand or re-enable the formula while regenerating it.
