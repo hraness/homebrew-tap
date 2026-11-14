@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "product": "yaptake",
+  "repository": "hraness/homebrew-tap",
+  "archives": [
+    {
+      "version": "0.1.0",
+      "build": "82",
+      "sha256": "0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324",
+      "tag": "yaptake-0.1.0-82-0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324",
+      "releaseID": 445631619,
+      "files": [
+        {
+          "path": "downloads/0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324/Yapwing-0.1.0-private.manifest.json",
+          "sha256": "1275da04665cafd4e51b7cf561f242baf1dd89738e6ab4e2fb5288286beb1ed4",
+          "sha1": "4f20757628c18ae8fb51477b4d12166d7d7e7742",
+          "length": 14757,
+          "assetID": 748963622,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-82-0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324/Yapwing-0.1.0-private.manifest.json"
+        },
+        {
+          "path": "downloads/0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324/Yapwing-0.1.0-private.sha256",
+          "sha256": "eb3ce892c4d844c0dab123b04e1075789f6309dfe6732c6fa53e448e65f71357",
+          "sha1": "c1ed40834aad135ee50053078a74ff7c2c27ae5d",
+          "length": 92,
+          "assetID": 748963684,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-82-0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324/Yapwing-0.1.0-private.sha256"
+        },
+        {
+          "path": "downloads/0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324/Yapwing-0.1.0-private.zip",
+          "sha256": "0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324",
+          "sha1": "03384be67d056a2de425987f9af583b724336a2f",
+          "length": 23094819,
+          "assetID": 748963718,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-82-0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324/Yapwing-0.1.0-private.zip"
+        }
+      ]
+    }
+  ]
+}
