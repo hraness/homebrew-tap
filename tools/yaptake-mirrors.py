@@ -328,6 +328,7 @@ def mirror(github, rows):
         need(isinstance(main, str) and re.fullmatch('[a-f0-9]{40}', main), 'Exact public tap source commit is required')
         release = github.api('POST', PREFIX + '/releases', {'tag_name': tag, 'target_commitish': main, 'name': f"Yaptake {package['version']} ({package['buildNumber']}): {package['sha256'][:12]}", 'body': MARKER, 'draft': True, 'prerelease': True, 'make_latest': 'false'})
     need(release.get('tag_name') == tag and type(release.get('id')) is int and release.get('body') == MARKER and isinstance(release.get('assets'), list) and len(release['assets']) <= 3, 'Existing tag is not an owned exact-byte mirror draft')
+    release_id = release['id']
     names = [asset.get('name') for asset in release['assets']]
     need(len(set(names)) == len(names) and set(names) <= {Path(row['path']).name for row in rows}, 'Mirror release has unexpected assets')
     completed = []
@@ -339,7 +340,7 @@ def mirror(github, rows):
             asset = None
         if asset is None:
             need(release.get('draft') is True, 'A published mirror cannot be changed')
-            row = github.upload(release['id'], row)
+            row = github.upload(release_id, row)
         else:
             verify_asset(asset, row)
             label = asset.get('label', '')
@@ -350,16 +351,18 @@ def mirror(github, rows):
                 need(isinstance(label, str) and re.fullmatch('sha1:[a-f0-9]{40}', label) and (row['sha1'] is None or label == 'sha1:' + row['sha1']), 'Existing asset label conflicts with its exact source identity')
                 row = {**row, 'sha1': label.removeprefix('sha1:')}
         completed.append(row)
-    release = github.api('GET', PREFIX + '/releases/' + str(release['id']))
-    need(len(release.get('assets', [])) == 3, 'Mirror must have all three exact assets before publication')
+    release = github.api('GET', PREFIX + '/releases/' + str(release_id))
+    need(release.get('id') == release_id and release.get('tag_name') == tag and release.get('body') == MARKER and len(release.get('assets', [])) == 3, 'Owned mirror identity and all three exact assets are required before publication')
     for row in completed:
         asset = next((item for item in release['assets'] if item.get('name') == Path(row['path']).name), {})
         verify_asset(asset, row)
-        need(asset.get('label') == 'sha1:' + row['sha1'] and asset.get('browser_download_url') == asset_url(tag, Path(row['path']).name), 'Asset readback lost its exact source identity')
+        need(asset.get('label') == 'sha1:' + row['sha1'], 'Asset readback lost its exact source identity')
+    # Draft assets use temporary untagged URLs. Admit canonical download URLs
+    # only from the immutable published readback below; never fetch draft URLs.
     if release.get('draft') is True:
-        github.api('PATCH', PREFIX + '/releases/' + str(release['id']), {'draft': False, 'prerelease': True, 'make_latest': 'false'})
-    release = github.api('GET', PREFIX + '/releases/' + str(release['id']))
-    need(release.get('draft') is False and release.get('immutable') is True and release.get('tag_name') == tag and len(release.get('assets', [])) == 3, 'Published release is not immutable; catalog admission refused')
+        github.api('PATCH', PREFIX + '/releases/' + str(release_id), {'draft': False, 'prerelease': True, 'make_latest': 'false'})
+    release = github.api('GET', PREFIX + '/releases/' + str(release_id))
+    need(release.get('id') == release_id and release.get('body') == MARKER and release.get('draft') is False and release.get('immutable') is True and release.get('tag_name') == tag and len(release.get('assets', [])) == 3, 'Published release is not immutable; catalog admission refused')
     files = []
     for row in completed:
         asset = next((item for item in release['assets'] if item.get('name') == Path(row['path']).name), {})
