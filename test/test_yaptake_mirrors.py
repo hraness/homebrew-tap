@@ -132,16 +132,22 @@ class MirrorsTests(unittest.TestCase):
     def test_mirror_cannot_append_until_all_assets_are_immutable_and_read_back(self):
         rows, data, package, record = fixture()
         class Fake:
-            def __init__(self, immutable):
+            def __init__(self, immutable, canonical_published_url=True, change_draft_tag=False):
                 self.immutable = immutable; self.appended = False; self.published = False
+                self.canonical_published_url = canonical_published_url; self.change_draft_tag = change_draft_tag
                 self.release = {'id': 225, 'tag_name': record['tag'], 'body': m.MARKER, 'draft': True, 'immutable': False, 'assets': []}
             def api(self, method, path, value=None):
                 if '?per_page=100&page=' in path: return [self.release]
-                if method == 'PATCH': self.published = True; self.release.update(draft=False, immutable=self.immutable)
+                if method == 'GET' and len(self.release['assets']) == 3 and self.release['draft'] and self.change_draft_tag:
+                    self.release['tag_name'] = 'changed-before-publication'
+                if method == 'PATCH':
+                    self.published = True; self.release.update(draft=False, immutable=self.immutable)
+                    if self.canonical_published_url:
+                        for asset in self.release['assets']: asset['browser_download_url'] = m.asset_url(record['tag'], asset['name'])
                 return self.release
             def upload(self, release_id, row):
                 file = next(item for item in record['files'] if item['path'] == row['path'])
-                self.release['assets'].append({'id': file['assetID'], 'name': Path(row['path']).name, 'state': 'uploaded', 'size': row['length'], 'digest': 'sha256:' + row['sha256'], 'label': 'sha1:' + row['sha1'], 'browser_download_url': file['url']})
+                self.release['assets'].append({'id': file['assetID'], 'name': Path(row['path']).name, 'state': 'uploaded', 'size': row['length'], 'digest': 'sha256:' + row['sha256'], 'label': 'sha1:' + row['sha1'], 'browser_download_url': m.asset_url('untagged-832de19bcd9fee2eb4d8', Path(row['path']).name)})
                 return row
             def append(self, value): self.appended = True; self.record = value
         with mock.patch.object(m, 'validate_package', return_value=package):
@@ -149,3 +155,9 @@ class MirrorsTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'not immutable'): m.mirror(bad, rows)
             self.assertFalse(bad.appended)
             good = Fake(True); result = m.mirror(good, rows); self.assertTrue(good.appended); self.assertEqual(result, record)
+            wrong_url = Fake(True, canonical_published_url=False)
+            with self.assertRaisesRegex(ValueError, 'Published asset URL differs'): m.mirror(wrong_url, rows)
+            self.assertTrue(wrong_url.published); self.assertFalse(wrong_url.appended)
+            changed = Fake(True, change_draft_tag=True)
+            with self.assertRaisesRegex(ValueError, 'Owned mirror identity'): m.mirror(changed, rows)
+            self.assertFalse(changed.published); self.assertFalse(changed.appended)
