@@ -269,6 +269,39 @@
     },
     {
       "version": "0.1.0",
+      "build": "45",
+      "sha256": "7ab5008f5fbee7e75556f3098e4ef0816b2daa2f037152c2556ce04af7ab09a1",
+      "tag": "yaptake-0.1.0-45-7ab5008f5fbee7e75556f3098e4ef0816b2daa2f037152c2556ce04af7ab09a1",
+      "releaseID": 445639566,
+      "files": [
+        {
+          "path": "downloads/7ab5008f5fbee7e75556f3098e4ef0816b2daa2f037152c2556ce04af7ab09a1/Yapwing-0.1.0-private.manifest.json",
+          "sha256": "d9b87d6cdfb5b167f7728b429c8230befa64490c79ab89ba7be7e6c32a3360e0",
+          "sha1": "4d0fb1cecc17b076edae5b083778d83786fa1201",
+          "length": 12747,
+          "assetID": 749004958,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-45-7ab5008f5fbee7e75556f3098e4ef0816b2daa2f037152c2556ce04af7ab09a1/Yapwing-0.1.0-private.manifest.json"
+        },
+        {
+          "path": "downloads/7ab5008f5fbee7e75556f3098e4ef0816b2daa2f037152c2556ce04af7ab09a1/Yapwing-0.1.0-private.sha256",
+          "sha256": "ee8c6f25aa81be6fda76bc3ede73b85ff96a9be675f68478c708a6f144558a01",
+          "sha1": "d146d5234f0533a4511ff23b832ea79157ceefc6",
+          "length": 92,
+          "assetID": 749004991,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-45-7ab5008f5fbee7e75556f3098e4ef0816b2daa2f037152c2556ce04af7ab09a1/Yapwing-0.1.0-private.sha256"
+        },
+        {
+          "path": "downloads/7ab5008f5fbee7e75556f3098e4ef0816b2daa2f037152c2556ce04af7ab09a1/Yapwing-0.1.0-private.zip",
+          "sha256": "7ab5008f5fbee7e75556f3098e4ef0816b2daa2f037152c2556ce04af7ab09a1",
+          "sha1": "ec166901c574d564a9162697a623ff84302f6ac3",
+          "length": 86335707,
+          "assetID": 749005054,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-45-7ab5008f5fbee7e75556f3098e4ef0816b2daa2f037152c2556ce04af7ab09a1/Yapwing-0.1.0-private.zip"
+        }
+      ]
+    },
+    {
+      "version": "0.1.0",
       "build": "50",
       "sha256": "1b18a6c1eeafb278501c6663d86636b39382367df6262706fd15d2673223637c",
       "tag": "yaptake-0.1.0-50-1b18a6c1eeafb278501c6663d86636b39382367df6262706fd15d2673223637c",
