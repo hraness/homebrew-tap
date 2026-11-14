@@ -1,0 +1,5 @@
+# Keep Homebrew's inherited declaration and name this tap's two approved App vars.
+config-variables:
+  - BREW_COMMIT_CLIENT_ID
+  - DISTRIBUTION_APP_ID
+  - RELEASE_TAGGER_APP_ID

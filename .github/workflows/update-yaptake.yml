@@ -1,0 +1,70 @@
+name: Update Yaptake
+on:
+  schedule:
+    - cron: '39 4 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: update-yaptake-cask
+  cancel-in-progress: false
+jobs:
+  refresh:
+    if: github.repository == 'hraness/homebrew-tap' && github.repository_id == '1382935233' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Require the selected-repository machine identity
+        env:
+          APP_ID: ${{ vars.DISTRIBUTION_APP_ID }}
+          APP_KEY: ${{ secrets.DISTRIBUTION_APP_PRIVATE_KEY }}
+        run: |
+          test "$APP_ID" = 5762098 && test -n "$APP_KEY" || { echo 'Configure the distribution GitHub App for this selected tap; no workflow-token fallback is permitted.' >&2; exit 78; }
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: app
+        with:
+          app-id: ${{ vars.DISTRIBUTION_APP_ID }}
+          private-key: ${{ secrets.DISTRIBUTION_APP_PRIVATE_KEY }}
+          owner: hraness
+          repositories: homebrew-tap
+          permission-contents: write
+          permission-pull-requests: write
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Verify exact App owner, installation and one-tap token
+        env:
+          APP_ID: ${{ vars.DISTRIBUTION_APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.DISTRIBUTION_APP_PRIVATE_KEY }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+          INSTALLATION_ID: ${{ steps.app.outputs.installation-id }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: node tools/check-app-authority.mjs distribution
+      - run: node tools/yaptake-cask.mjs --refresh
+      - uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
+        id: pr
+        with:
+          token: ${{ steps.app.outputs.token }}
+          branch: automation/yaptake-cask
+          base: main
+          delete-branch: true
+          sign-commits: true
+          add-paths: |
+            Casks/yaptake.rb
+            catalog/yaptake.json
+          commit-message: Update Yaptake to the active signed release
+          title: Update Yaptake to the active signed release
+          body: |
+            <!-- yaptake-cask-refresh:v1 -->
+            Refresh the generated cask from Yaptake's matching public release and appcast. Version and build both determine updates. Required checks validate the source, exact archive and normal install/uninstall behavior before protected auto-merge.
+      - name: Use protected auto-merge for the exact generated head
+        if: steps.pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
+          PR_HEAD: ${{ steps.pr.outputs.pull-request-head-sha }}
+        run: gh pr merge "$PR_NUMBER" --repo hraness/homebrew-tap --auto --squash --match-head-commit "$PR_HEAD"
