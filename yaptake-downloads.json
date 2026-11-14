@@ -233,6 +233,39 @@
           "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-82-0514493569988ab510f563bde2b9fdcc1aa9241de4cd20272dd26495dab62324/Yapwing-0.1.0-private.zip"
         }
       ]
+    },
+    {
+      "version": "0.1.0",
+      "build": "98",
+      "sha256": "373c1b06353fa2d8e71ac5cf560dc1e0811163d2ea2c11b84c4cf19c6a733c7c",
+      "tag": "yaptake-0.1.0-98-373c1b06353fa2d8e71ac5cf560dc1e0811163d2ea2c11b84c4cf19c6a733c7c",
+      "releaseID": 445638769,
+      "files": [
+        {
+          "path": "downloads/373c1b06353fa2d8e71ac5cf560dc1e0811163d2ea2c11b84c4cf19c6a733c7c/Yapwing-0.1.0-private.manifest.json",
+          "sha256": "0cdbda129c3d15e7f8ef786391f183b309f099f0cc31d192c97d23b90d4606ce",
+          "sha1": "20c0333e0634b2a0ad688dd955be23fbdee7ab6a",
+          "length": 15557,
+          "assetID": 749000931,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-98-373c1b06353fa2d8e71ac5cf560dc1e0811163d2ea2c11b84c4cf19c6a733c7c/Yapwing-0.1.0-private.manifest.json"
+        },
+        {
+          "path": "downloads/373c1b06353fa2d8e71ac5cf560dc1e0811163d2ea2c11b84c4cf19c6a733c7c/Yapwing-0.1.0-private.sha256",
+          "sha256": "e9b61b5924f69ff62da7f9897effa9b5dace0d83e8d9cf4efd1fee697209915d",
+          "sha1": "46f8edbd119693d38ce51c5d4b8b9bd28770097a",
+          "length": 92,
+          "assetID": 749000988,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-98-373c1b06353fa2d8e71ac5cf560dc1e0811163d2ea2c11b84c4cf19c6a733c7c/Yapwing-0.1.0-private.sha256"
+        },
+        {
+          "path": "downloads/373c1b06353fa2d8e71ac5cf560dc1e0811163d2ea2c11b84c4cf19c6a733c7c/Yapwing-0.1.0-private.zip",
+          "sha256": "373c1b06353fa2d8e71ac5cf560dc1e0811163d2ea2c11b84c4cf19c6a733c7c",
+          "sha1": "c4e6a022ae55a305cc3ed137bbc6eb620a958b39",
+          "length": 29274360,
+          "assetID": 749001076,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-98-373c1b06353fa2d8e71ac5cf560dc1e0811163d2ea2c11b84c4cf19c6a733c7c/Yapwing-0.1.0-private.zip"
+        }
+      ]
     }
   ]
 }
