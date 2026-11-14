@@ -26,8 +26,9 @@ jobs:
     timeout-minutes: 3
     outputs:
       formula: ${{ steps.filter.outputs.formula }}
+      cask: ${{ steps.filter.outputs.cask }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           filter: blob:none
@@ -38,10 +39,12 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           if [ "$EVENT" != "pull_request" ] && [ "$EVENT" != "push" ]; then
-            echo "formula=true" >> "$GITHUB_OUTPUT"; exit 0
+            echo "formula=true" >> "$GITHUB_OUTPUT"
+            echo "cask=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
           if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            echo "formula=true" >> "$GITHUB_OUTPUT"; exit 0
+            echo "formula=true" >> "$GITHUB_OUTPUT"
+            echo "cask=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
           changed="$(git diff --name-only "$BASE" HEAD)"
           echo "$changed"
@@ -50,17 +53,31 @@ jobs:
           else
             echo "formula=false" >> "$GITHUB_OUTPUT"
           fi
+          if echo "$changed" | grep -qE '^(Casks/|catalog/|tools/yaptake-|tools/check-yaptake|test/|\.github/workflows/)'; then
+            echo "cask=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "cask=false" >> "$GITHUB_OUTPUT"
+          fi
 
   lint:
     needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Ruby syntax
-        run: for f in Formula/*.rb; do ruby -c "$f"; done
+        run: for f in Formula/*.rb Casks/*.rb; do ruby -c "$f"; done
       - name: Generator syntax
         run: node --check tools/brew-formula.mjs
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Public Yaptake generators and preservation boundaries
+        run: |
+          node --test test/*.test.mjs
+          python3 -m unittest discover -s test -p 'test_*.py' -v
+          node tools/yaptake-cask.mjs --check
+          bash -n tools/check-yaptake-install
       - name: Formula matches the generator output
         # Fetches release sidecars, so only run it when the formula side changed.
         if: needs.changes.outputs.formula == 'true'
@@ -83,7 +100,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Put Homebrew on PATH (Linux)
         if: runner.os == 'Linux'
         run: echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
@@ -133,9 +150,31 @@ jobs:
           grep -Fq 'hraness/tap/vhalla has been disabled because it is deprecated upstream!' <<< "$output"
           test ! -d "$(brew --cellar)/vhalla"
 
+  cask:
+    name: Yaptake cask
+    needs: changes
+    if: needs.changes.outputs.cask == 'true'
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Tap only this checkout
+        run: |
+          tap="$(brew --repository)/Library/Taps/hraness/homebrew-tap"
+          test ! -e "$tap"
+          mkdir -p "$(dirname "$tap")"
+          ln -s "$GITHUB_WORKSPACE" "$tap"
+      - run: brew style --cask hraness/tap/yaptake
+      - run: brew audit --strict --online --cask hraness/tap/yaptake
+      - name: Verify exact bytes, normal installation and data-preserving uninstall
+        run: tools/check-yaptake-install
+
   Required:
     if: always()
-    needs: [changes, lint, brew]
+    needs: [changes, lint, brew, cask]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:

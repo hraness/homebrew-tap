@@ -1,0 +1,44 @@
+#!/bin/bash
+# A disposable hosted Mac owns this installation and the synthetic data fixtures.
+set -euo pipefail
+[[ "${GITHUB_ACTIONS:-}" == true && "${RUNNER_OS:-}" == macOS && "${RUNNER_ARCH:-}" == ARM64 ]]
+[[ "$(sw_vers -productVersion | cut -d. -f1)" -ge 26 ]]
+: "${RUNNER_TEMP:?A disposable hosted runner is required}"
+appdir="$RUNNER_TEMP/yaptake-brew-apps"
+fixture="$RUNNER_TEMP/yaptake-brew-project/Keep.yaptake"
+support="$HOME/Library/Application Support/Yaptake/BrewUninstallFixture.txt"
+[[ ! -e "$appdir" && ! -e "$fixture" && ! -e "$support" ]]
+mkdir -p "$appdir" "$fixture/.yapwing" "$(dirname "$support")"
+printf 'Synthetic project to retain\n' > "$fixture/project.json"
+printf 'Synthetic project state to retain\n' > "$fixture/.yapwing/state.json"
+printf 'Synthetic preferences to retain\n' > "$support"
+defaults write com.yapwing.app HranessBrewUninstallFixture -string keep
+if brew command trust >/dev/null 2>&1; then
+  brew trust --cask hraness/tap/yaptake
+fi
+brew fetch --cask hraness/tap/yaptake
+archive="$(brew --cache --cask hraness/tap/yaptake)"
+node tools/yaptake-cask.mjs --archive "$archive"
+cleanup() {
+  if brew list --cask yaptake >/dev/null 2>&1; then brew uninstall --cask hraness/tap/yaptake; fi
+}
+trap cleanup EXIT
+brew install --cask --appdir="$appdir" hraness/tap/yaptake
+app="$appdir/Yaptake.app"
+/usr/bin/codesign --verify --deep --strict --verbose=2 "$app"
+/usr/bin/codesign -dv --verbose=4 "$app" 2>&1 | grep -Fx 'TeamIdentifier=8AAP53VTW3'
+/usr/sbin/spctl --assess --type execute --verbose=4 "$app"
+[[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist")" == com.yapwing.app ]]
+expected="$(node -e 'const r=require("./catalog/yaptake.json"); process.stdout.write(r.version+","+r.build)')"
+actual="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist"),$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$app/Contents/Info.plist")"
+[[ "$actual" == "$expected" ]]
+command -v yaptake
+yaptake --help > "$RUNNER_TEMP/yaptake-brew-help.txt"
+grep -Fq 'yaptake' "$RUNNER_TEMP/yaptake-brew-help.txt"
+brew uninstall --cask hraness/tap/yaptake
+[[ ! -e "$app" ]]
+[[ "$(cat "$fixture/project.json")" == 'Synthetic project to retain' ]]
+[[ "$(cat "$fixture/.yapwing/state.json")" == 'Synthetic project state to retain' ]]
+[[ "$(cat "$support")" == 'Synthetic preferences to retain' ]]
+[[ "$(defaults read com.yapwing.app HranessBrewUninstallFixture)" == keep ]]
+printf 'Normal install, signed CLI and data-preserving uninstall passed\n'

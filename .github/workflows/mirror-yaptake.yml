@@ -1,0 +1,66 @@
+name: Mirror Yaptake archives
+on:
+  schedule:
+    - cron: '17 */2 * * *'
+  repository_dispatch:
+    types: [yaptake-release-active]
+  workflow_dispatch:
+    inputs:
+      include-history:
+        description: Preserve all reviewed historical download paths (safe to repeat)
+        type: boolean
+        default: false
+      preflight:
+        description: Check the one-repository App token without publishing
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: mirror-yaptake-archives
+  cancel-in-progress: false
+jobs:
+  mirror:
+    if: github.repository == 'hraness/homebrew-tap' && github.repository_id == '1382935233' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Require the existing release machine identity
+        env:
+          APP_ID: ${{ vars.RELEASE_TAGGER_APP_ID }}
+          APP_KEY: ${{ secrets.RELEASE_TAGGER_PRIVATE_KEY }}
+        run: |
+          test "$APP_ID" = 5164973 && test -n "$APP_KEY" || { echo 'Configure the existing release-tagger App for this selected tap. No workflow-token fallback is permitted.' >&2; exit 78; }
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: app
+        with:
+          app-id: ${{ vars.RELEASE_TAGGER_APP_ID }}
+          private-key: ${{ secrets.RELEASE_TAGGER_PRIVATE_KEY }}
+          owner: hraness
+          repositories: homebrew-tap
+          permission-contents: ${{ inputs.preflight == true && 'read' || 'write' }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Verify exact App owner, installation and one-tap token
+        env:
+          APP_ID: ${{ vars.RELEASE_TAGGER_APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.RELEASE_TAGGER_PRIVATE_KEY }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+          INSTALLATION_ID: ${{ steps.app.outputs.installation-id }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: node tools/check-app-authority.mjs mirror
+      - name: Mirror exact public bytes and conditionally append immutable identities
+        env:
+          YAPTAKE_RELEASE_TOKEN: ${{ steps.app.outputs.token }}
+          INCLUDE_HISTORY: ${{ inputs.include-history }}
+          PREFLIGHT: ${{ inputs.preflight }}
+        run: |
+          args=()
+          if test "$PREFLIGHT" = true; then args+=(--preflight); fi
+          if test "$INCLUDE_HISTORY" = true; then args+=(--include-history); fi
+          python3 tools/yaptake-mirrors.py "${args[@]}"

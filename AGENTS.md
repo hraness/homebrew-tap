@@ -3,3 +3,15 @@
 - Never start the system Chrome app directly from an agent shell; use the repository's browser tooling and respect its scheduler and browser custody controls. For owned launches, pass `--mute-audio` and merge `PaintHolding,MacAppCodeSignClone` into any existing `--disable-features` value instead of adding a second switch. Finish owned process, context, and profile cleanup before releasing the browser lane. Never signal another holder or manipulate its lease to obtain a slot.
 - The sole native-runtime exception is Slopcamera’s documented signature-verified, version-bound, immutable task-owned Chrome snapshot, never a direct launch of the installed application. Its current integrity-bound launch contract must disable `MacAppCodeSignClone`; retain vendor identity verification, browser custody, graceful cleanup, and regression checks. Qualify the native fix with live clone-growth and cleanup evidence before activating this exception. It is not an executable override or fallback for ordinary automation; see [the native-runtime exception](https://github.com/hraness/.github/blob/main/BROWSER_AUTOMATION.md#slopcamera-native-runtime-exception).
 <!-- browser-automation:end -->
+
+For every documentation surface, follow the
+[Hraness documentation guidelines](https://github.com/hraness/.github/blob/main/DOCUMENTATION_GUIDELINES.md)
+and [public writing style](https://github.com/hraness/.github/blob/main/STYLE.md).
+Verify prerequisites, capabilities, effects and the complete stated path.
+
+Yaptake casks are generated from the active signed release by
+`tools/yaptake-cask.mjs`; edit its generator and catalog rather than hand-editing
+checksums. Preserve projects and preferences during uninstall. Immutable archive
+mirrors admit already-public exact bytes independently of native activation.
+Retain every catalog record and original download path. Keep the retired
+Valhalla formula disabled. See `docs/yaptake-distribution.md`.
