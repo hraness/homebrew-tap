@@ -167,6 +167,11 @@ jobs:
           test ! -e "$tap"
           mkdir -p "$(dirname "$tap")"
           ln -s "$GITHUB_WORKSPACE" "$tap"
+      - name: Trust only the cask under test before audit
+        run: |
+          if brew command trust >/dev/null 2>&1; then
+            brew trust --cask hraness/tap/yaptake
+          fi
       - run: brew style --cask hraness/tap/yaptake
       - run: brew audit --strict --online --cask hraness/tap/yaptake
       - name: Verify exact bytes, normal installation and data-preserving uninstall
