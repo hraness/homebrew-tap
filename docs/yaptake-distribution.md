@@ -13,6 +13,11 @@ length, signature, platform, app version and build. The generator refuses versio
 or build rollback and refuses a changed archive for an existing version/build.
 It reads the release and feed again to detect a concurrent update.
 
+Homebrew livecheck reads both version fields from that appcast with its
+[XML strategy](https://docs.brew.sh/Brew-Livecheck#xml-strategy-block). Builds
+can share the same app version while their download hash paths differ, so the
+cask retains the build number when checking for updates.
+
 The daily **Update Yaptake** workflow updates `catalog/yaptake.json` and generates
 `Casks/yaptake.rb`. It opens a pull request and requests protected auto-merge for
 that exact head. Required checks validate the generators, download and verify
@@ -33,7 +38,8 @@ repository scope and requires this one public tap. It stores no token. The
 App-token action revokes its installation token at job cleanup. Pinned Actions
 have a weekly Dependabot update path.
 
-A manual refresh uses Node 24 and the same generator:
+A manual refresh uses Node 24 and the same generator. The focused cask tests
+also use Ruby with REXML:
 
 ```sh
 node tools/yaptake-cask.mjs --refresh

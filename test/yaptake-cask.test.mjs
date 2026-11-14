@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import { admitUpdate, readCurrent, releaseRecord, renderCask, verifyArchive } from "../tools/yaptake-cask.mjs";
 
 const record = { schemaVersion: 1, product: "yaptake", version: "0.1.0", build: "225", url: `https://yaptake.com/downloads/${"a".repeat(64)}/Yaptake-0.1.0-private.zip`, sha256: "a".repeat(64), length: 42, architecture: "arm64", minimumMacOS: "26.0", edSignature: Buffer.alloc(64).toString("base64") };
@@ -16,6 +17,52 @@ test("the cask version uses both app version and build, with user data outside u
   assert(text.includes('depends_on arch: :arm64')); assert(text.includes('depends_on macos: :tahoe'));
   assert(text.includes('Contents/Helpers/yaptake')); assert(!/zap |uninstall |delete|rmdir|rm_rf/.test(text));
   assert(!text.includes("github.com/hraness/yaptake"));
+});
+
+test("the Ruby cask resolves the canonical URL and detects builds sharing an app version", () => {
+  const ruby = String.raw`
+require "json"
+require "rexml/document"
+class CaskProbe
+  attr_reader :download, :check, :strategy_name
+  Version = Struct.new(:value) do
+    def before_comma
+      value.split(",").first
+    end
+  end
+  def version(value = nil)
+    value ? @version = Version.new(value) : @version
+  end
+  def url(value)
+    @download = value unless @in_livecheck
+  end
+  def appdir
+    "/Applications"
+  end
+  def livecheck(&block)
+    @in_livecheck = true
+    instance_eval(&block)
+  ensure
+    @in_livecheck = false
+  end
+  def strategy(name, &block)
+    @strategy_name = name
+    @check = block
+  end
+  def method_missing(*)
+    nil
+  end
+end
+input = JSON.parse(STDIN.read)
+probe = CaskProbe.new
+define_singleton_method(:cask) { |_name, &block| probe.instance_eval(&block) }
+eval(input.fetch("cask"), TOPLEVEL_BINDING)
+puts JSON.generate({ url: probe.download, strategy: probe.strategy_name, versions: input.fetch("feeds").map { |xml| probe.check.call(REXML::Document.new(xml)) } })
+`;
+  const namespaced = feed.replace("<rss>", '<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">');
+  const result = spawnSync("ruby", ["-e", ruby], { encoding: "utf8", input: JSON.stringify({ cask: renderCask(record), feeds: [namespaced, namespaced.replace("<sparkle:version>225", "<sparkle:version>226"), namespaced.replace("<sparkle:version>225", "<sparkle:version>bad"), namespaced.replace("<sparkle:shortVersionString>0.1.0", "<sparkle:shortVersionString>")] }) });
+  assert.equal(result.status, 0, result.stderr || String(result.error));
+  assert.deepEqual(JSON.parse(result.stdout), { url: record.url, strategy: "xml", versions: [["0.1.0,225"], ["0.1.0,226"], [], []] });
 });
 
 test("runtime updates refuse a rollback and replacement of an admitted version/build", () => {
