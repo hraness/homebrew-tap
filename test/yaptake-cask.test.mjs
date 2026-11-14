@@ -26,8 +26,8 @@ require "rexml/document"
 class CaskProbe
   attr_reader :download, :check, :strategy_name
   Version = Struct.new(:value) do
-    def before_comma
-      value.split(",").first
+    def csv
+      value.split(",")
     end
   end
   def version(value = nil)

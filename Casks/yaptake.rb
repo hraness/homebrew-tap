@@ -3,7 +3,7 @@ cask "yaptake" do
   version "0.1.0,231"
   sha256 "1f4c00dc124f4574fab2efc67e1b649d7035b73a21ba76744a86e71ef8016288"
 
-  url "https://yaptake.com/downloads/1f4c00dc124f4574fab2efc67e1b649d7035b73a21ba76744a86e71ef8016288/Yaptake-#{version.before_comma}-private.zip"
+  url "https://yaptake.com/downloads/1f4c00dc124f4574fab2efc67e1b649d7035b73a21ba76744a86e71ef8016288/Yaptake-#{version.csv.first}-private.zip"
   name "Yaptake"
   desc "Video editor with transcript cuts, captions and a timeline"
   homepage "https://yaptake.com/"
