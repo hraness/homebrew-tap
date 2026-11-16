@@ -19,6 +19,14 @@ test("the cask version uses both app version and build, with user data outside u
   assert(!text.includes("github.com/hraness/yaptake"));
 });
 
+test("an archive named without the signing channel renders the same version-templated URL", () => {
+  const plain = { ...record, build: "240", url: record.url.replace("-private.zip", ".zip") };
+  assert.deepEqual(releaseRecord({ ...manifest, release: { ...manifest.release, url: plain.url } }, feed.replace(record.url, plain.url).replace(">225<", ">240<")), plain);
+  assert(renderCask(plain).includes("/Yaptake-#{version.csv.first}.zip\""));
+  assert(renderCask(record).includes("/Yaptake-#{version.csv.first}-private.zip\""));
+  assert.throws(() => renderCask({ ...record, url: record.url.replace("-private.zip", "-development.zip") }));
+});
+
 test("the Ruby cask resolves the canonical URL and detects builds sharing an app version", () => {
   const ruby = String.raw`
 require "json"

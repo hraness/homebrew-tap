@@ -23,7 +23,9 @@ META_LIMIT = 128 * 1024
 API_LIMIT = 4 * 1024 * 1024
 ASSET_LIMIT = 2 * 1024 * 1024 * 1024 - 1
 MAX_FILES = 768
-PATH = re.compile(r'downloads/([a-f0-9]{64})/((?:Yaptake|Yapwing)-([0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.-]+)?)-private)\.(zip|sha256|manifest\.json)')
+# Archives finalized from 2026-11-16 are Yaptake-VERSION.*; earlier ones keep
+# their published Yaptake/Yapwing-VERSION-private.* names.
+PATH = re.compile(r'downloads/([a-f0-9]{64})/((?:Yaptake|Yapwing)-([0-9]+\.[0-9]+\.[0-9]+(?:-[A-Za-z0-9.-]+?)??)(?:-private)?)\.(zip|sha256|manifest\.json)')
 MARKER = 'Exact-byte mirror of an already-public Yaptake package. Native activation is managed by yaptake.com.'
 
 
