@@ -12,8 +12,8 @@ SPEC = importlib.util.spec_from_file_location('yaptake_mirrors', Path(__file__).
 m = importlib.util.module_from_spec(SPEC); SPEC.loader.exec_module(m)
 
 
-def fixture(payload=b'Synthetic archive', build='225'):
-    archive_hash = hashlib.sha256(payload).hexdigest(); name = 'Yaptake-0.1.0-private'
+def fixture(payload=b'Synthetic archive', build='225', name='Yaptake-0.1.0-private'):
+    archive_hash = hashlib.sha256(payload).hexdigest()
     package = {'version': '0.1.0', 'buildNumber': build, 'sha256': archive_hash, 'archive': name + '.zip', 'channel': 'private', 'sourceDirty': False, 'bundleIdentifier': 'com.yapwing.app', 'architecture': 'arm64', 'minimumMacOS': '26.0', 'teamID': '8AAP53VTW3', 'notarization': {'status': 'Accepted', 'stapleValidated': True, 'gatekeeperAccepted': True}, **{key: 'a' * length for key, length in [('sourceSHA', 40), ('sourceTreeSHA', 40), ('sourceSnapshotSHA256', 64), ('symbolsSHA256', 64), ('appTreeSHA256', 64)]}}
     data = {f'downloads/{archive_hash}/{name}.zip': payload, f'downloads/{archive_hash}/{name}.sha256': f'{archive_hash}  {name}.zip\n'.encode(), f'downloads/{archive_hash}/{name}.manifest.json': m.encode(package)}
     rows = [{'path': path, 'sha256': hashlib.sha256(raw).hexdigest(), 'sha1': hashlib.sha1(raw).hexdigest(), 'length': len(raw)} for path, raw in sorted(data.items())]
@@ -39,6 +39,12 @@ class MirrorsTests(unittest.TestCase):
                 value = copy.deepcopy(package); value['sourceDirty' if change == 'dirty' else 'teamID'] = True if change == 'dirty' else 'OTHERTEAM1'
                 row = next(row for row in changed if row['path'].endswith('.manifest.json')); raw = m.encode(value); files[row['path']] = raw; row.update(sha256=hashlib.sha256(raw).hexdigest(), sha1=hashlib.sha1(raw).hexdigest(), length=len(raw))
             with self.subTest(change=change), self.assertRaises(ValueError): m.validate_package(changed, lambda path: files[path])
+
+    def test_archives_named_without_the_signing_channel_are_admitted(self):
+        rows, data, package, record = fixture(build='240', name='Yaptake-0.1.0')
+        self.assertEqual(m.validate_package(rows, lambda path: data[path]), package)
+        self.assertEqual(m.PATH.fullmatch(rows[0]['path'])[3], '0.1.0')
+        self.assertEqual(m.PATH.fullmatch('downloads/' + 'a' * 64 + '/Yaptake-0.1.0-private.zip')[3], '0.1.0')
 
     def test_append_is_stable_and_cannot_replace_or_roll_back_prior_entries(self):
         _, _, _, first = fixture(); _, _, _, second = fixture(b'Second synthetic archive', '226')

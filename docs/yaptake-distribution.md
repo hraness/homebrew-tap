@@ -61,8 +61,11 @@ it contains no provider file or deployment identifiers.
 
 A release tag includes the full app version, build number and archive SHA-256:
 `yaptake-VERSION-BUILD-SHA256`. It has exactly three assets. Existing Yapwing
-filenames remain unchanged. The `private` suffix describes their Developer ID
-signing channel; these files were already public downloads.
+filenames remain unchanged. The `private` suffix on archives finalized before
+2026-11-16 describes their Developer ID signing channel; these files were
+already public downloads and keep their names. Later archives are named
+`Yaptake-VERSION.zip` (with matching `.sha256` and `.manifest.json`), and the
+cask generator accepts both forms.
 
 The publisher streams one file at a time in 64 KiB chunks. It checks the source
 Content-Length, SHA-256 and, when supplied by the history seed, SHA-1 content
