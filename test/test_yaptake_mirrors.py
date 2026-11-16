@@ -43,7 +43,7 @@ class MirrorsTests(unittest.TestCase):
     def test_archives_named_without_the_signing_channel_are_admitted(self):
         rows, data, package, record = fixture(build='240', name='Yaptake-0.1.0')
         self.assertEqual(m.validate_package(rows, lambda path: data[path]), package)
-        self.assertEqual(m.PATH.fullmatch(rows[0]['path'])[3], '0.1.0')
+        self.assertEqual(m.PATH.fullmatch(next(row['path'] for row in rows if row['path'].endswith('/Yaptake-0.1.0.zip')))[3], '0.1.0')
         self.assertEqual(m.PATH.fullmatch('downloads/' + 'a' * 64 + '/Yaptake-0.1.0-private.zip')[3], '0.1.0')
 
     def test_append_is_stable_and_cannot_replace_or_roll_back_prior_entries(self):
