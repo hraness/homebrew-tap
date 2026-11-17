@@ -1,5 +1,7 @@
 # Hraness Homebrew tap
 
+This tap installs two Mac apps: Yaptake and [Sponge for Mac](#sponge-for-mac).
+
 Install [Yaptake](https://yaptake.com), a Mac video editor with transcript cuts,
 editable captions and a timeline. The app includes the `yaptake` command for
 working with a local project from a coding agent.
@@ -38,6 +40,22 @@ The cask follows Yaptake's active signed release and checks the archive's
 SHA-256. Its version includes both the app version and build number. The
 [maintenance guide](docs/yaptake-distribution.md) explains automatic updates and
 the mirror workflow for preserving existing download addresses.
+
+## Sponge for Mac
+
+[Sponge](https://sponge.computer) is a reading library. The Mac app reads your
+library in a window and saves links from the Share menu, the menu bar or a
+keyboard shortcut. It needs macOS 15 or later and a Sponge account; capture
+runs on a computer with the [Sponge CLI](https://sponge.computer/download).
+
+```sh
+brew install --cask hraness/tap/sponge
+open -a Sponge
+```
+
+The app updates itself. `brew uninstall --cask hraness/tap/sponge` removes the
+app and leaves your library and settings in place. This cask is named for the
+app; the `sponge` formula in Homebrew core is a different tool (moreutils).
 
 ## Retired Valhalla formula
 

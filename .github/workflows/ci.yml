@@ -177,9 +177,38 @@ jobs:
       - name: Verify exact bytes, normal installation and data-preserving uninstall
         run: tools/check-yaptake-install
 
+  sponge-cask:
+    name: Sponge cask
+    needs: changes
+    if: needs.changes.outputs.cask == 'true'
+    runs-on: macos-26
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Tap only this checkout
+        run: |
+          tap="$(brew --repository)/Library/Taps/hraness/homebrew-tap"
+          test ! -e "$tap"
+          mkdir -p "$(dirname "$tap")"
+          ln -s "$GITHUB_WORKSPACE" "$tap"
+      - name: Trust only the cask under test before audit
+        run: |
+          if brew command trust >/dev/null 2>&1; then
+            brew trust --cask hraness/tap/sponge
+          fi
+      - run: brew style --cask hraness/tap/sponge
+      - run: brew audit --strict --online --cask hraness/tap/sponge
+      - name: Install, check the notarized app and uninstall
+        run: |
+          brew install --cask hraness/tap/sponge
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' /Applications/Sponge.app/Contents/Info.plist)" = com.hraness.sponge.mac
+          spctl --assess --type execute -vv /Applications/Sponge.app
+          brew uninstall --cask hraness/tap/sponge
+          test ! -e /Applications/Sponge.app
+
   Required:
     if: always()
-    needs: [changes, lint, brew, cask]
+    needs: [changes, lint, brew, cask, sponge-cask]
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
