@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "product": "yaptake",
   "version": "0.1.0",
-  "build": "255",
-  "url": "https://yaptake.com/downloads/761ef17aac5747f782f40f283813003573cf812c27615ab95bb08dce93715b50/Yaptake-0.1.0.zip",
-  "sha256": "761ef17aac5747f782f40f283813003573cf812c27615ab95bb08dce93715b50",
-  "length": 30327276,
+  "build": "307",
+  "url": "https://yaptake.com/downloads/a4b1896b84e5f18bfccc8c189835c3b6ef8ff67ef1a18f5b36afdee46ffcda58/Yaptake-0.1.0.zip",
+  "sha256": "a4b1896b84e5f18bfccc8c189835c3b6ef8ff67ef1a18f5b36afdee46ffcda58",
+  "length": 31307994,
   "architecture": "arm64",
   "minimumMacOS": "26.0",
-  "edSignature": "m5IpuSQ4qZa+tut4BlFCubagm3H2xF80JANq7lSQxzMLmI3XTcic5AuJeKTT2G9Svn+GHRwHdGHqR89HtewoBQ=="
+  "edSignature": "lHBgkWDWMcaixaIhTjFCrgzeh4YiWoa0hwT6Ug4DzAMapWp/+LLUVr4owcjmkc43m9TAynrgjeU0zjc4022YAQ=="
 }
