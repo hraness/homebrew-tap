@@ -23,7 +23,9 @@ The daily **Update Yaptake** workflow updates `catalog/yaptake.json` and generat
 that exact head. Required checks validate the generators, download and verify
 the archive and its Sparkle signature, then exercise normal Homebrew installation,
 the signed command and uninstall on a disposable macOS 26 Apple Silicon runner.
-Synthetic projects and preferences must remain after uninstall.
+Synthetic projects and preferences must remain after uninstall. A change runs
+the strict online Homebrew audit only for the casks it updates, so a new release
+of another app in this tap cannot block a Yaptake update.
 
 Configure the organization-owned distribution GitHub App once, selecting only
 this repository for its installation token. The workflow uses

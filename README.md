@@ -1,6 +1,15 @@
 # Hraness Homebrew tap
 
-This tap installs two Mac apps: Yaptake and [Sponge for Mac](#sponge-for-mac).
+This tap installs four Mac apps: [Yaptake](#yaptake),
+[Sponge for Mac](#sponge-for-mac), [Textmock for Mac](#textmock-for-mac) and
+[DAWN](#dawn). You need [Homebrew](https://brew.sh).
+
+If an app is already in your Applications folder from its website,
+`brew install --cask` stops rather than replace it. Add `--adopt` to keep that
+copy and let Homebrew manage it, for example
+`brew install --cask --adopt hraness/tap/textmock`.
+
+## Yaptake
 
 Install [Yaptake](https://yaptake.com), a Mac video editor with transcript cuts,
 editable captions and a timeline. The app includes the `yaptake` command for
@@ -56,6 +65,52 @@ open -a Sponge
 The app updates itself. `brew uninstall --cask hraness/tap/sponge` removes the
 app and leaves your library and settings in place. This cask is named for the
 app; the `sponge` formula in Homebrew core is a different tool (moreutils).
+
+## Textmock for Mac
+
+[Textmock](https://textmock.com/mac) makes iMessage-style conversations. Write
+both sides, or let a fictional character reply with AI that runs on your Mac,
+then save an image or video. It needs macOS 14 or later. AI replies need Apple
+Intelligence on macOS 26, or the Gemma 4 model on Apple silicon with at least
+8 GB of memory; without either, you can still write both sides.
+
+```sh
+brew install --cask hraness/tap/textmock
+textmock --help
+open -a Textmock
+```
+
+The cask links the `textmock` command, so you don't need **Install Command-Line
+Tool…**. The command runs one method of Textmock's agent API in the open app.
+Follow [Use a coding agent](https://textmock.com/docs/agents) to create, edit and
+export a conversation from Terminal or a coding agent.
+
+The app updates itself, and the command updates with it.
+`brew uninstall --cask hraness/tap/textmock` removes the app and the command and
+leaves your conversations and settings in place.
+
+## DAWN
+
+[DAWN](https://dawnav.com/desktop) makes music from a prompt or a score. In the
+app, a sentence starts a loop that keeps playing while you edit it. The `dawn`
+command checks and renders songs written as TypeScript scores. DAWN needs an
+Apple Silicon Mac with macOS 13 or later. Composing, checking and rendering work
+offline and need no account.
+
+```sh
+brew install --cask hraness/tap/dawn
+dawn --version
+open -a DAWN
+```
+
+The cask links the `dawn` command inside the app, so you can skip **Install dawn
+command**. Follow [Make your first song](https://dawnav.com/docs/first-song) to
+write an eight-bar song and render it to WAV and MIDI. The
+[CLI reference](https://dawnav.com/docs/cli) describes the other commands.
+
+The app updates itself, and the command updates with it.
+`brew uninstall --cask hraness/tap/dawn` removes the app and the command and
+leaves your projects and settings in place.
 
 ## Retired Valhalla formula
 
