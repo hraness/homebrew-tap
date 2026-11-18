@@ -1,8 +1,8 @@
 cask "sponge" do
-  version "1.0.1"
-  sha256 "b6e02b59190f63bd3d713cec0ed10a096504559d0747349acdca3ba66b282e4c"
+  version "1.0.2"
+  sha256 "33c09e06d69ed8a0ccf0e3565931665876c58fdf91cfb131fdd9ace898624dce"
 
-  url "https://sponge.computer/downloads/b6e02b59190f63bd3d713cec0ed10a096504559d0747349acdca3ba66b282e4c/Sponge-#{version}.zip"
+  url "https://sponge.computer/downloads/33c09e06d69ed8a0ccf0e3565931665876c58fdf91cfb131fdd9ace898624dce/Sponge-#{version}.zip"
   name "Sponge"
   desc "Reading library with share-menu, menu bar and shortcut saving"
   homepage "https://sponge.computer/mac"

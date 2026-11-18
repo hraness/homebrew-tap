@@ -1,0 +1,62 @@
+#!/bin/bash
+# Install a Hraness Mac app cask, adopt an existing copy, and uninstall it.
+# A disposable hosted Mac owns this installation and the synthetic preference.
+# Usage: tools/check-app-cask TOKEN APP BUNDLE_ID [COMMAND ARGUMENT EXPECTED_OUTPUT]
+set -euo pipefail
+[[ "${GITHUB_ACTIONS:-}" == true && "${RUNNER_OS:-}" == macOS ]]
+: "${RUNNER_TEMP:?A disposable hosted runner is required}"
+if (($# != 3 && $# != 6)); then
+  echo "usage: $0 TOKEN APP BUNDLE_ID [COMMAND ARGUMENT EXPECTED_OUTPUT]" >&2
+  exit 64
+fi
+token="$1" app_name="$2" bundle="$3" command="${4:-}" argument="${5:-}" expected="${6:-}"
+cask="hraness/tap/$token"
+app="/Applications/$app_name"
+team=8AAP53VTW3
+link=""
+[[ -n "$command" ]] && link="$(brew --prefix)/bin/$command"
+website_copy="$RUNNER_TEMP/$token-website/$app_name"
+[[ ! -e "$app" && ! -e "$website_copy" ]]
+[[ -z "$link" || (! -e "$link" && ! -L "$link") ]]
+defaults write "$bundle" HranessBrewUninstallFixture -string keep
+
+check_installed() {
+  [[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist")" == "$bundle" ]]
+  /usr/bin/codesign --verify --deep --strict --verbose=2 "$app"
+  /usr/bin/codesign -dv --verbose=4 "$app" 2>&1 | grep -Fx "TeamIdentifier=$team"
+  /usr/sbin/spctl --assess --type execute --verbose=4 "$app"
+  [[ -n "$command" ]] || return 0
+  local target
+  target="$(readlink "$link")"
+  if [[ "$target" != "$app"/* ]]; then
+    echo "$link points to '$target', not into $app" >&2
+    return 1
+  fi
+  "$link" "$argument" > "$RUNNER_TEMP/$token-command.txt"
+  cat "$RUNNER_TEMP/$token-command.txt"
+  grep -Fq -- "$expected" "$RUNNER_TEMP/$token-command.txt"
+}
+
+check_removed() {
+  [[ ! -e "$app" ]]
+  [[ -z "$link" || (! -e "$link" && ! -L "$link") ]]
+  [[ "$(defaults read "$bundle" HranessBrewUninstallFixture)" == keep ]]
+}
+
+if brew command trust >/dev/null 2>&1; then
+  brew trust --cask "$cask"
+fi
+
+brew install --cask "$cask"
+check_installed
+# Keep the exact app, as if it had been downloaded from the website.
+ditto "$app" "$website_copy"
+brew uninstall --cask "$cask"
+check_removed
+
+ditto "$website_copy" "$app"
+brew install --cask --adopt "$cask"
+check_installed
+brew uninstall --cask "$cask"
+check_removed
+printf 'Install, adoption of an existing copy and data-preserving uninstall passed for %s\n' "$token"
