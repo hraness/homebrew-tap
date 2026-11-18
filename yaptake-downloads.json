@@ -764,6 +764,39 @@
     },
     {
       "version": "0.1.0",
+      "build": "320",
+      "sha256": "8e4dd3ee36cef5ac5c741e6c43ecb8b879c60a321cff971bc9e2d490613d76d8",
+      "tag": "yaptake-0.1.0-320-8e4dd3ee36cef5ac5c741e6c43ecb8b879c60a321cff971bc9e2d490613d76d8",
+      "releaseID": 450216451,
+      "files": [
+        {
+          "path": "downloads/8e4dd3ee36cef5ac5c741e6c43ecb8b879c60a321cff971bc9e2d490613d76d8/Yaptake-0.1.0.manifest.json",
+          "sha256": "8da06def1b82cb7a1287b29cd6c69a8ffa979b5bfcbf88e2d7bb74f151ed8f3c",
+          "sha1": "7493ff1ecf5f3f6d0a19a291a205e1bf834448ce",
+          "length": 16821,
+          "assetID": 764013851,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-320-8e4dd3ee36cef5ac5c741e6c43ecb8b879c60a321cff971bc9e2d490613d76d8/Yaptake-0.1.0.manifest.json"
+        },
+        {
+          "path": "downloads/8e4dd3ee36cef5ac5c741e6c43ecb8b879c60a321cff971bc9e2d490613d76d8/Yaptake-0.1.0.sha256",
+          "sha256": "c74786e2cc21a39dc7dcab72fb50baaead21a1c7c3f2a9881a01399d453fe703",
+          "sha1": "b6c22cc426b771f617d48a9e23b001730c03bbbe",
+          "length": 84,
+          "assetID": 764013900,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-320-8e4dd3ee36cef5ac5c741e6c43ecb8b879c60a321cff971bc9e2d490613d76d8/Yaptake-0.1.0.sha256"
+        },
+        {
+          "path": "downloads/8e4dd3ee36cef5ac5c741e6c43ecb8b879c60a321cff971bc9e2d490613d76d8/Yaptake-0.1.0.zip",
+          "sha256": "8e4dd3ee36cef5ac5c741e6c43ecb8b879c60a321cff971bc9e2d490613d76d8",
+          "sha1": "6e5fdf41ea47c5e3bfb86a607a85b42e2d7d1393",
+          "length": 33018873,
+          "assetID": 764014003,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.0-320-8e4dd3ee36cef5ac5c741e6c43ecb8b879c60a321cff971bc9e2d490613d76d8/Yaptake-0.1.0.zip"
+        }
+      ]
+    },
+    {
+      "version": "0.1.0",
       "build": "42",
       "sha256": "e31d89dd93e1b9c343fd5f25c85da2cbcee02983f673f2cc1a7626c727baeb05",
       "tag": "yaptake-0.1.0-42-e31d89dd93e1b9c343fd5f25c85da2cbcee02983f673f2cc1a7626c727baeb05",
