@@ -1,8 +1,8 @@
 cask "textmock" do
-  version "1.0.19"
-  sha256 "c681d65d0fd64a713ab9b553831bfb19e3f79aff7955236c39d142a5c1380f4b"
+  version "1.0.20"
+  sha256 "d8f18b2d16a02030aaa6709387ea960f72b97807d06beeedcc7dbf312bb44c05"
 
-  url "https://textmock.com/downloads/c681d65d0fd64a713ab9b553831bfb19e3f79aff7955236c39d142a5c1380f4b/Textmock-#{version}.zip"
+  url "https://textmock.com/downloads/d8f18b2d16a02030aaa6709387ea960f72b97807d06beeedcc7dbf312bb44c05/Textmock-#{version}.zip"
   name "Textmock"
   desc "Private AI chats and iMessage-style conversation mockups"
   homepage "https://textmock.com/mac"
