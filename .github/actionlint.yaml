@@ -3,3 +3,7 @@ config-variables:
   - BREW_COMMIT_CLIENT_ID
   - DISTRIBUTION_APP_ID
   - RELEASE_TAGGER_APP_ID
+
+self-hosted-runner:
+  labels:
+    - hraness-cf

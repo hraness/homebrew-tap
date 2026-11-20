@@ -22,7 +22,7 @@ env:
 jobs:
   # Path gate lives inside the workflow so `Required` always reports.
   changes:
-    runs-on: ubuntu-latest
+    runs-on: hraness-cf
     timeout-minutes: 3
     outputs:
       formula: ${{ steps.filter.outputs.formula }}
@@ -81,7 +81,7 @@ jobs:
 
   lint:
     needs: changes
-    runs-on: ubuntu-latest
+    runs-on: hraness-cf
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -123,7 +123,7 @@ jobs:
         # runners have no preinstalled Homebrew, so CI checks macOS arm64 and
         # Linux x86_64 only.
         os: [macos-15, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ contains(fromJSON('["ubuntu-latest","ubuntu-24.04","ubuntu-slim"]'), matrix.os) && 'hraness-cf' || matrix.os }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -284,7 +284,7 @@ jobs:
   Required:
     if: always()
     needs: [changes, lint, brew, cask, app-casks]
-    runs-on: ubuntu-latest
+    runs-on: hraness-cf
     timeout-minutes: 2
     steps:
       - name: All gates passed or were skipped by the path gate

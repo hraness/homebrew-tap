@@ -11,7 +11,7 @@ concurrency:
 jobs:
   refresh:
     if: github.repository == 'hraness/homebrew-tap' && github.repository_id == '1382935233' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: hraness-cf
     timeout-minutes: 8
     steps:
       - name: Require the selected-repository machine identity

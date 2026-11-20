@@ -19,7 +19,7 @@ jobs:
       github.event.workflow_run.head_repository.id == 1382935233 &&
       github.event.workflow_run.head_repository.full_name == github.repository &&
       startsWith(github.event.workflow_run.head_branch, 'dependabot/github_actions/')
-    runs-on: ubuntu-latest
+    runs-on: hraness-cf
     timeout-minutes: 5
     permissions:
       contents: read
