@@ -5,13 +5,12 @@
 class OhRouter < Formula
   desc "Session router, terminal safety guard and board worker for coding agents"
   homepage "https://ohrouter.com"
+  url "https://ohrouter.com/downloads/2ada77073d1fa921f35c13010c7514e680efe1643b124fd5390d46bdf9cf2962/oh-router-v0.1.0-aarch64-apple-darwin.tar.gz"
+  sha256 "2ada77073d1fa921f35c13010c7514e680efe1643b124fd5390d46bdf9cf2962"
   license any_of: ["MIT", "Apache-2.0"]
 
   on_macos do
-    on_arm do
-      url "https://ohrouter.com/downloads/2ada77073d1fa921f35c13010c7514e680efe1643b124fd5390d46bdf9cf2962/oh-router-v0.1.0-aarch64-apple-darwin.tar.gz"
-      sha256 "2ada77073d1fa921f35c13010c7514e680efe1643b124fd5390d46bdf9cf2962"
-    end
+    depends_on arch: :arm64
   end
 
   on_linux do

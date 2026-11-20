@@ -27,5 +27,4 @@ cask "oh" do
   depends_on macos: :sequoia
 
   app "Oh.app"
-  binary "#{appdir}/Oh.app/Contents/Helpers/oh-router"
 end

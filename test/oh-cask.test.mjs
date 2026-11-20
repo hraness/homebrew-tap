@@ -51,7 +51,7 @@ test("oh-cask validates release.json and appcast.xml and renders Casks/oh.rb", (
   const cask = renderCask(record);
   assert.match(cask, /cask "oh" do/);
   assert.match(cask, /app "Oh\.app"/);
-  assert.match(cask, /binary "#\{appdir\}\/Oh\.app\/Contents\/Helpers\/oh-router"/);
+  assert.doesNotMatch(cask, /^\s*binary\s/m);
   assert.throws(() => admitUpdate(record, { ...record, build: "1" }), /rollback/i);
 });
 
@@ -82,6 +82,7 @@ test("oh-router-formula validates multi-platform release manifest and renders Fo
   assert.match(formula, /class OhRouter < Formula/);
   assert.match(formula, /%w\[oh-router ohd oh-holder\]/);
   assert.match(formula, /license any_of: \["MIT", "Apache-2\.0"\]/);
+  assert.match(formula, /on_macos do[\s\S]*?depends_on arch: :arm64\s+end/);
   assert.throws(() => validateRouterRelease({ ...manifest, targets: { ...manifest.targets, "x86_64-unknown-linux-gnu": { sha256: s2, url: `https://example.com/downloads/${s2}/oh-router-v0.1.0-x86_64-unknown-linux-gnu.tar.gz` } } }), /Unexpected archive URL/);
 
   const release = (version, digest) => ({
@@ -97,4 +98,13 @@ test("oh-router-formula validates multi-platform release manifest and renders Fo
   assert.equal(admitRouterUpdate(record, release("0.1.1", "4".repeat(64))).version, "0.1.1");
   assert.throws(() => admitRouterUpdate(release("0.2.0", s1), manifest), /rollback/i);
   assert.throws(() => admitRouterUpdate(record, release("0.1.0", "5".repeat(64))), /cannot change/);
+
+  const intelRelease = release("0.1.1", "4".repeat(64));
+  const intelChecksum = "5".repeat(64);
+  const intelUrl = `https://ohrouter.com/downloads/${intelChecksum}/oh-router-v0.1.1-x86_64-apple-darwin.tar.gz`;
+  intelRelease.targets["x86_64-apple-darwin"] = { sha256: intelChecksum, url: intelUrl };
+  const intelFormula = renderFormula(admitRouterUpdate(record, intelRelease));
+  assert.ok(intelFormula.includes(`on_intel do\n      url "${intelUrl}"`));
+  assert.doesNotMatch(intelFormula, /depends_on arch: :arm64/);
+  assert.throws(() => admitRouterUpdate(intelRelease, release("0.1.1", "4".repeat(64))), /cannot change/);
 });

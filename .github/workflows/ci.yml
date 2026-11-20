@@ -247,9 +247,6 @@ jobs:
             cask: oh
             app: Oh.app
             bundle: computer.oh.app
-            command: oh-router
-            arg: --version
-            expect: 'oh-router '
     env:
       CASK: hraness/tap/${{ matrix.cask }}
     steps:

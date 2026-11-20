@@ -7,8 +7,10 @@ import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const ORIGIN = "https://ohrouter.com";
+const INTEL_MAC = "x86_64-apple-darwin";
 const TARGETS = [
   "aarch64-apple-darwin",
+  INTEL_MAC,
   "x86_64-unknown-linux-gnu",
   "aarch64-unknown-linux-musl",
 ];
@@ -23,6 +25,7 @@ export function validateRouterRelease(manifest) {
   const out = { schemaVersion: 1, product: "oh-router", version: v, targets: {} };
   for (const target of TARGETS) {
     const entry = manifest.targets[target];
+    if (target === INTEL_MAC && entry === undefined) continue;
     need(entry && typeof entry.sha256 === "string" && /^[a-f0-9]{64}$/.test(entry.sha256), `Missing valid sha256 for ${target}`);
     const expectedName = `oh-router-v${v}-${target}.tar.gz`;
     const expectedUrl = `${ORIGIN}/downloads/${entry.sha256}/${expectedName}`;
@@ -57,8 +60,13 @@ async function readRelease() {
 export function renderFormula(record) {
   validateRouterRelease(record);
   const mac = record.targets["aarch64-apple-darwin"];
+  const macIntel = record.targets[INTEL_MAC];
   const linuxX64 = record.targets["x86_64-unknown-linux-gnu"];
   const linuxArm = record.targets["aarch64-unknown-linux-musl"];
+  const macBuilds = macIntel ? `    on_intel do
+      url "${macIntel.url}"
+      sha256 "${macIntel.sha256}"
+    end` : "    depends_on arch: :arm64";
   return `# frozen_string_literal: true
 
 # Binary distribution of oh-router from immutable ohrouter.com release archives.
@@ -66,13 +74,12 @@ export function renderFormula(record) {
 class OhRouter < Formula
   desc "Session router, terminal safety guard and board worker for coding agents"
   homepage "https://ohrouter.com"
+  url "${mac.url}"
+  sha256 "${mac.sha256}"
   license any_of: ["MIT", "Apache-2.0"]
 
   on_macos do
-    on_arm do
-      url "${mac.url}"
-      sha256 "${mac.sha256}"
-    end
+${macBuilds}
   end
 
   on_linux do

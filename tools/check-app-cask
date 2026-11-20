@@ -45,18 +45,47 @@ check_removed() {
 
 if brew command trust >/dev/null 2>&1; then
   brew trust --cask "$cask"
+  if [[ "$token" == oh ]]; then
+    brew trust --formula hraness/tap/oh-router
+  fi
 fi
 
+check_oh_commands() {
+  "$app/Contents/Helpers/oh-router" --version
+  test "$(realpath "$(brew --prefix)/bin/oh-router")" = "$(realpath "$(brew --prefix hraness/tap/oh-router)/bin/oh-router")"
+  oh-router --version
+}
+
+if [[ "$token" == oh ]]; then
+  brew install --formula hraness/tap/oh-router
+fi
 brew install --cask "$cask"
 check_installed
+if [[ "$token" == oh ]]; then
+  check_oh_commands
+fi
 # Keep the exact app, as if it had been downloaded from the website.
 ditto "$app" "$website_copy"
 brew uninstall --cask "$cask"
 check_removed
+if [[ "$token" == oh ]]; then
+  oh-router --version
+  brew uninstall --formula hraness/tap/oh-router
+  [[ ! -L "$(brew --prefix)/bin/oh-router" ]]
+fi
 
 ditto "$website_copy" "$app"
 brew install --cask --adopt "$cask"
 check_installed
+if [[ "$token" == oh ]]; then
+  [[ ! -L "$(brew --prefix)/bin/oh-router" ]]
+  brew install --formula hraness/tap/oh-router
+  check_oh_commands
+fi
 brew uninstall --cask "$cask"
 check_removed
+if [[ "$token" == oh ]]; then
+  oh-router --version
+  brew uninstall --formula hraness/tap/oh-router
+fi
 printf 'Install, adoption of an existing copy and data-preserving uninstall passed for %s\n' "$token"
