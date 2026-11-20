@@ -1,13 +1,68 @@
 # Hraness Homebrew tap
 
-This tap installs four Mac apps: [Yaptake](#yaptake),
+This tap installs five Mac apps ([OH](#oh), [Yaptake](#yaptake),
 [Sponge for Mac](#sponge-for-mac), [Textmock for Mac](#textmock-for-mac) and
-[DAWN](#dawn). You need [Homebrew](https://brew.sh).
+[DAWN](#dawn)) and the standalone [OH Router](#oh-router) command-line tool.
+You need [Homebrew](https://brew.sh).
 
 If an app is already in your Applications folder from its website,
 `brew install --cask` stops rather than replace it. Add `--adopt` to keep that
 copy and let Homebrew manage it, for example
-`brew install --cask --adopt hraness/tap/textmock`.
+`brew install --cask --adopt hraness/tap/oh`.
+
+## OH
+
+Install [OH](https://oh.computer), a Mac app for supervising Claude Code and
+Codex sessions across providers, models and machines, sharing one Vercel Board,
+and pairing remote machines over Cloudflare Tunnel. The app includes the
+`oh-router` command.
+
+OH requires an Apple Silicon Mac with macOS 15 or later and
+[Homebrew](https://brew.sh).
+
+```sh
+brew install --cask hraness/tap/oh
+oh-router --version
+open -a Oh
+```
+
+The cask links the `oh-router` command inside the app, so you can skip
+**Help → Use with Coding Agents… → Install `oh-router` Command**. Follow
+[Use with coding agents](https://oh.computer/docs/agents) to supervise sessions
+and connect a coding agent, or [Multi-machine Cloudflare Tunnels](https://oh.computer/docs/devices)
+to pair a remote workstation. The [CLI reference](https://oh.computer/docs/cli)
+covers every subcommand.
+
+OH can update itself. To request an update through Homebrew:
+
+```sh
+brew update
+brew upgrade --cask --greedy hraness/tap/oh
+```
+
+To remove the app and its command:
+
+```sh
+brew uninstall --cask hraness/tap/oh
+```
+
+Uninstalling leaves your session state, profiles and settings in place. The
+cask has no `zap` step.
+
+## OH Router
+
+Install [OH Router](https://ohrouter.com) (`oh-router`, `ohd` and `oh-holder`)
+without the desktop app on macOS (Apple Silicon) or Linux (`x86_64` and `arm64`):
+
+```sh
+brew install hraness/tap/oh-router
+oh-router --version
+```
+
+Follow the [quickstart](https://ohrouter.com/docs/quickstart) to start `ohd`,
+spawn or steer sessions through the 2D VT limit-dialog safety guard, and run a
+`@vercel/board` worker. On a Mac where `hraness/tap/oh` is already installed,
+`oh-router` is already linked by the cask.
 
 ## Yaptake
 

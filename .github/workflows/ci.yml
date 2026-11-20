@@ -54,7 +54,7 @@ jobs:
           else
             echo "formula=false" >> "$GITHUB_OUTPUT"
           fi
-          if echo "$changed" | grep -qE '^(Casks/|catalog/|tools/yaptake-|tools/check-yaptake|tools/check-app-cask|test/|\.github/workflows/)'; then
+          if echo "$changed" | grep -qE '^(Casks/|catalog/|tools/yaptake-|tools/oh-cask|tools/check-yaptake|tools/check-app-cask|test/|\.github/workflows/)'; then
             echo "cask=true" >> "$GITHUB_OUTPUT"
           else
             echo "cask=false" >> "$GITHUB_OUTPUT"
@@ -74,6 +74,7 @@ jobs:
           else
             git ls-files Casks
           fi | sed -nE 's#^(Casks|catalog)/([a-z0-9-]+)\.(rb|json)$#\2#p' | sort -u |
+            while IFS= read -r name; do if [ -f "Casks/$name.rb" ]; then printf '%s\n' "$name"; fi; done |
             jq -Rnc '[inputs]' > "$RUNNER_TEMP/audit.json"
           cat "$RUNNER_TEMP/audit.json"
           echo "casks=$(cat "$RUNNER_TEMP/audit.json")" >> "$GITHUB_OUTPUT"
@@ -87,15 +88,20 @@ jobs:
       - name: Ruby syntax
         run: for f in Formula/*.rb Casks/*.rb; do ruby -c "$f"; done
       - name: Generator syntax
-        run: node --check tools/brew-formula.mjs
+        run: |
+          node --check tools/brew-formula.mjs
+          node --check tools/oh-cask.mjs
+          node --check tools/oh-router-formula.mjs
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
-      - name: Public Yaptake generators and preservation boundaries
+      - name: Public Yaptake and OH generators and preservation boundaries
         run: |
           node --test test/*.test.mjs
           python3 -m unittest discover -s test -p 'test_*.py' -v
           node tools/yaptake-cask.mjs --check
+          node tools/oh-cask.mjs --check
+          node tools/oh-router-formula.mjs --check
           bash -n tools/check-yaptake-install
           bash -n tools/check-app-cask
       - name: Formula matches the generator output
@@ -131,16 +137,26 @@ jobs:
           rm -rf "$tap"
           ln -s "$GITHUB_WORKSPACE" "$tap"
           brew tap
-      - name: Trust only the formula under test
+      - name: Trust only the formulae under test
         run: |
           # Older runner images can predate Homebrew's tap-trust command.
           if brew command trust >/dev/null 2>&1; then
             brew trust --formula hraness/tap/vhalla
+            brew trust --formula hraness/tap/oh-router
           fi
       - name: brew style
         run: brew style hraness/tap
       - name: brew audit
-        run: brew audit --strict --formula hraness/tap/vhalla
+        run: |
+          brew audit --strict --formula hraness/tap/vhalla
+          brew audit --strict --formula hraness/tap/oh-router
+      - name: Install, test and uninstall oh-router formula
+        run: |
+          brew install hraness/tap/oh-router
+          brew test hraness/tap/oh-router
+          oh-router --version | grep -Fq "oh-router "
+          brew uninstall hraness/tap/oh-router
+          test ! -d "$(brew --cellar)/oh-router"
       - name: Confirm retired formula metadata
         run: |
           brew info --json=v2 hraness/tap/vhalla | ruby -rjson -e '
@@ -227,6 +243,13 @@ jobs:
             command: dawn
             arg: --version
             expect: 'dawn '
+          - name: OH
+            cask: oh
+            app: Oh.app
+            bundle: computer.oh.app
+            command: oh-router
+            arg: --version
+            expect: 'oh-router '
     env:
       CASK: hraness/tap/${{ matrix.cask }}
     steps:
