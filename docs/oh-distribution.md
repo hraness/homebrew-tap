@@ -17,15 +17,18 @@ feed again to detect a concurrent update.
 `--archive PATH` checks a downloaded archive against the admitted record: its
 size, SHA-256 and Sparkle signature under the app's update key.
 
-The cask installs `Oh.app` and links the `oh-router` command from
-`Oh.app/Contents/Helpers/`. Livecheck reads both version fields from the
-appcast, so builds that share an app version still update.
+The cask installs `Oh.app`, which runs its own bundled helpers. To use its
+bundled `oh-router` command outside the app, open **Help → Use with Coding
+Agents…** and install the link in `~/.local/bin`. Livecheck reads both version
+fields from the appcast, so builds that share an app version still update.
 
 ## The oh-router formula
 
 `tools/oh-router-formula.mjs` reads `https://ohrouter.com/release.json` and
-generates `Formula/oh-router.rb` for macOS on Apple Silicon and for Linux on
-`x86_64` and `arm64`. Each archive URL must be the content-addressed
+generates `Formula/oh-router.rb` for Apple Silicon and for Linux on
+`x86_64` and `arm64`. It includes an Intel Mac build once the manifest carries
+a published `x86_64-apple-darwin` archive. Until then Homebrew reports an
+Apple Silicon (`arm64`) requirement on macOS. Each archive URL must be the content-addressed
 `https://ohrouter.com/downloads/<sha256>/oh-router-v<version>-<target>.tar.gz`
 path for its own checksum. The generator refuses version rollback and refuses
 changed archives for an admitted version.
@@ -54,6 +57,9 @@ node tools/oh-router-formula.mjs --check
 Deliver the generated changes through the normal pull request path. Never edit
 a checksum by hand.
 
-A Mac with the OH cask installed already has `oh-router` linked from the app.
-Install the formula only where the app is not installed, such as Linux hosts
-and Macs that run `ohd` without the app.
+The cask and formula can be installed in either order. The formula owns
+Homebrew's `oh-router` command, and uninstalling the app leaves that command
+available.
+
+If you installed an older OH cask that linked the command into Homebrew's bin,
+run `brew reinstall --cask hraness/tap/oh` before installing the formula.
