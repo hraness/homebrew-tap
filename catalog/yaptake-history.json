@@ -576,6 +576,24 @@
       "sha256": "f96c7a12ae25a321007ca72740ae300e734252394aa1ff95f3b6650524e02741",
       "sha1": "b6d79f8a6a54438fc1fe412b9f4220813d749ace",
       "length": 29379531
+    },
+    {
+      "path": "downloads/fe6b95cb97275c735e67d097ba2dc59c7d5a6bbc652408aeb26f0b468434a990/Yaptake-0.1.0.manifest.json",
+      "length": 17472,
+      "sha256": "86244d35da9ab5fe41158d44e417fbb0b086f100dbe48e42c3d282e627ebf0f1",
+      "sha1": "84bc9ffc83df2992cd79283dbd31f1d585431490"
+    },
+    {
+      "path": "downloads/fe6b95cb97275c735e67d097ba2dc59c7d5a6bbc652408aeb26f0b468434a990/Yaptake-0.1.0.sha256",
+      "length": 84,
+      "sha256": "7086f41d82fbcedc872e47a14c75f3bf0926758f99717db491847d1bbc8b8521",
+      "sha1": "8ebe95b3f89b2ca1b09484b14c3521cdc864b4c0"
+    },
+    {
+      "path": "downloads/fe6b95cb97275c735e67d097ba2dc59c7d5a6bbc652408aeb26f0b468434a990/Yaptake-0.1.0.zip",
+      "length": 34372794,
+      "sha256": "fe6b95cb97275c735e67d097ba2dc59c7d5a6bbc652408aeb26f0b468434a990",
+      "sha1": "dbaeee781fa11cb73ac6464c577fd54e94fccaf2"
     }
   ]
 }
