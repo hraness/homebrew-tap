@@ -85,6 +85,10 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Ruby for formula syntax checks
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ruby
       - name: Ruby syntax
         run: for f in Formula/*.rb Casks/*.rb; do ruby -c "$f"; done
       - name: Generator syntax
@@ -127,6 +131,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Homebrew in the ephemeral Linux runner
+        if: runner.os == 'Linux'
+        uses: Homebrew/actions/setup-homebrew@61b401267256bb9c047d6d1481b176d5772a0ba7 # main, 2026-11-20
       - name: Put Homebrew on PATH (Linux)
         if: runner.os == 'Linux'
         run: echo "/home/linuxbrew/.linuxbrew/bin" >> "$GITHUB_PATH"
