@@ -1,0 +1,145 @@
+import { createHash, createPublicKey, verify } from "node:crypto";
+import { lstat, mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
+
+const ORIGIN = "https://oh.computer";
+const PUBLIC_KEY = "xrrlJsum9NWGhpgDXWrE0ghRQXUyq5yQXMpHfzBj17Q=";
+const need = (value, message) => { if (!value) throw new Error(message); };
+const digest = (value) => createHash("sha256").update(value).digest("hex");
+const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
+const versionParts = (value) => {
+  need(typeof value === "string" && /^(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})\.(0|[1-9]\d{0,8})$/.test(value), "An exact released version is required");
+  return value.split(".").map(Number);
+};
+const tag = (xml, name) => {
+  const values = [...xml.matchAll(new RegExp(`<${name}>([^<]*)</${name}>`, "g"))];
+  need(values.length === 1, `Missing or duplicate ${name}`); return values[0][1];
+};
+
+export function releaseRecord(manifest, appcast) {
+  const r = manifest?.release;
+  need(manifest?.schemaVersion === 1 && r && typeof r === "object", "No active public release");
+  versionParts(r.version);
+  need(typeof r.sha256 === "string" && /^[a-f0-9]{64}$/.test(r.sha256) && r.url === `${ORIGIN}/downloads/${r.sha256}/OH-${r.version}.zip`, "Archive URL or checksum is not canonical");
+  need(r.architecture === "arm64" && r.minimumMacOS === "15.0" && ["preview", "stable"].includes(r.channel), "Unsupported app platform or channel");
+  need(r.notarization?.status === "Accepted" && r.notarization.stapleValidated === true && r.notarization.gatekeeperAccepted === true, "App release has not passed its native admission");
+  need(typeof appcast === "string" && Buffer.byteLength(appcast) <= 131072 && !/<!DOCTYPE|<!ENTITY/i.test(appcast), "Unsupported appcast");
+  const items = [...appcast.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/g)]; need(items.length === 1, "One active appcast item is required");
+  const item = items[0][1]; const build = tag(item, "sparkle:version");
+  need(/^[1-9]\d{0,8}$/.test(build) && tag(item, "sparkle:shortVersionString") === r.version && tag(item, "sparkle:minimumSystemVersion") === r.minimumMacOS && tag(item, "sparkle:hardwareRequirements") === r.architecture, "Appcast platform or version mismatch");
+  const enclosures = [...item.matchAll(/<enclosure\b([^>]+)\/?\s*>/g)]; need(enclosures.length === 1, "One archive enclosure is required");
+  const attrs = {};
+  for (const match of enclosures[0][1].matchAll(/([\w:]+)="([^"]*)"/g)) { need(!Object.hasOwn(attrs, match[1]), "Duplicate enclosure attribute"); attrs[match[1]] = match[2]; }
+  need(Number.isSafeInteger(r.sparkle?.length) && r.sparkle.length > 0 && r.sparkle.length <= 268435456 && attrs.url === r.url && attrs.length === String(r.sparkle.length) && attrs["sparkle:edSignature"] === r.sparkle.edSignature && /^[A-Za-z0-9+/]{86}==$/.test(r.sparkle.edSignature), "Appcast archive, length or signature mismatch");
+  return validateRecord({ schemaVersion: 1, product: "oh", version: r.version, build, url: r.url, sha256: r.sha256, length: r.sparkle.length, architecture: r.architecture, minimumMacOS: r.minimumMacOS, edSignature: r.sparkle.edSignature });
+}
+
+export function validateRecord(record) {
+  const keys = ["schemaVersion", "product", "version", "build", "url", "sha256", "length", "architecture", "minimumMacOS", "edSignature"];
+  need(record && Object.keys(record).length === keys.length && keys.every((key) => Object.hasOwn(record, key)) && record.schemaVersion === 1 && record.product === "oh", "Invalid cask source record");
+  versionParts(record.version);
+  need(typeof record.build === "string" && typeof record.sha256 === "string" && typeof record.edSignature === "string" && /^[1-9]\d{0,8}$/.test(record.build) && /^[a-f0-9]{64}$/.test(record.sha256) && record.url === `${ORIGIN}/downloads/${record.sha256}/OH-${record.version}.zip` && record.architecture === "arm64" && record.minimumMacOS === "15.0" && Number.isSafeInteger(record.length) && record.length > 0 && record.length <= 268435456 && /^[A-Za-z0-9+/]{86}==$/.test(record.edSignature), "Invalid cask runtime identity");
+  return record;
+}
+
+export function admitUpdate(previous, next) {
+  validateRecord(next); if (!previous) return next; validateRecord(previous);
+  const a = versionParts(previous.version), b = versionParts(next.version);
+  const first = a.findIndex((part, index) => part !== b[index]);
+  need(first < 0 || b[first] > a[first], "Version rollback refused");
+  need(BigInt(next.build) >= BigInt(previous.build), "Build rollback refused");
+  if (next.version === previous.version && next.build === previous.build) need(json(next) === json(previous), "An admitted version/build cannot change its archive identity");
+  return next;
+}
+
+export function renderCask(record) {
+  validateRecord(record);
+  const url = record.url.replace(`/OH-${record.version}.zip`, '/OH-#{version.csv.first}.zip');
+  return String.raw`# Generated by tools/oh-cask.mjs from the active signed release.
+cask "oh" do
+  version "${record.version},${record.build}"
+  sha256 "${record.sha256}"
+
+  url "${url}"
+  name "OH"
+  desc "Supervise Claude Code and Codex sessions across models and machines"
+  homepage "https://oh.computer/"
+
+  livecheck do
+    url "https://oh.computer/appcast.xml"
+    strategy :xml do |xml|
+      xml.get_elements("rss/channel/item").each_with_object([]) do |item, versions|
+        short_version = item.elements["sparkle:shortVersionString"]&.text&.strip
+        build = item.elements["sparkle:version"]&.text&.strip
+        next unless short_version&.match?(/\A\d+\.\d+\.\d+\z/)
+        next unless build&.match?(/\A[1-9]\d*\z/)
+
+        versions << "#{short_version},#{build}"
+      end
+    end
+  end
+
+  auto_updates true
+  depends_on arch: :arm64
+  depends_on macos: :sequoia
+
+  app "Oh.app"
+  binary "#{appdir}/Oh.app/Contents/Helpers/oh-router"
+end
+`;
+}
+
+export async function readCurrent(fetchImpl = fetch) {
+  const get = async (path) => {
+    const response = await fetchImpl(`${ORIGIN}/${path}`, { redirect: "error", signal: AbortSignal.timeout(20000), headers: { "cache-control": "no-cache" } });
+    need(response.ok, "Public release metadata is unavailable");
+    const declared = response.headers.get("content-length");
+    need(declared === null || (/^[0-9]+$/.test(declared) && Number(declared) <= 131072), "Release metadata exceeds limit");
+    const chunks = []; let size = 0;
+    for await (const chunk of response.body) { size += chunk.length; need(size <= 131072, "Release metadata exceeds limit"); chunks.push(chunk); }
+    need(declared === null || Number(declared) === size, "Release metadata was truncated");
+    return Buffer.concat(chunks).toString("utf8");
+  };
+  const release = await get("release.json"); const feed = await get("appcast.xml");
+  const next = releaseRecord(JSON.parse(release), feed);
+  need(release === await get("release.json") && feed === await get("appcast.xml"), "Active release changed during refresh");
+  return next;
+}
+
+export async function verifyArchive(path, record) {
+  validateRecord(record); const info = await lstat(path);
+  need(info.isFile() && !info.isSymbolicLink() && info.size === record.length, "Archive must be its bounded regular file");
+  const bytes = await readFile(path);
+  need(digest(bytes) === record.sha256, "Archive checksum differs from the cask source");
+  const key = createPublicKey({ key: Buffer.concat([Buffer.from("302a300506032b6570032100", "hex"), Buffer.from(PUBLIC_KEY, "base64")]), format: "der", type: "spki" });
+  need(verify(null, bytes, key, Buffer.from(record.edSignature, "base64")), "Archive Sparkle signature does not match the app's update key");
+  return { sha256: record.sha256, version: record.version, build: record.build, length: bytes.length };
+}
+
+export async function main(args = process.argv.slice(2)) {
+  const mode = args[0] ?? "--check";
+  const recordPath = resolve("catalog/oh.json");
+  const existing = await readFile(recordPath, "utf8").then(JSON.parse).catch((error) => { if (error.code === "ENOENT") return null; throw error; });
+  if (mode === "--refresh") {
+    need(args.length === 1, "Use --refresh");
+    const next = admitUpdate(existing, await readCurrent());
+    await mkdir(dirname(recordPath), { recursive: true }); await mkdir("Casks", { recursive: true });
+    await writeFile(recordPath, json(next)); await writeFile("Casks/oh.rb", renderCask(next));
+  } else if (mode === "--from") {
+    need(args.length === 3, "Use --from <release.json> <appcast.xml>");
+    const rel = JSON.parse(await readFile(args[1], "utf8"));
+    const feed = await readFile(args[2], "utf8");
+    const next = admitUpdate(existing, releaseRecord(rel, feed));
+    await mkdir(dirname(recordPath), { recursive: true }); await mkdir("Casks", { recursive: true });
+    await writeFile(recordPath, json(next)); await writeFile("Casks/oh.rb", renderCask(next));
+  } else if (mode === "--archive") {
+    need(args.length === 2 && existing, "Use --archive PATH with an admitted cask source");
+    process.stdout.write(`${json(await verifyArchive(args[1], existing))}`);
+  } else {
+    need(mode === "--check" && args.length <= 1 && existing, "Use --check, --refresh, --from or --archive PATH");
+    need(await readFile("Casks/oh.rb", "utf8") === renderCask(existing), "Cask differs from its generated source");
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) await main();
