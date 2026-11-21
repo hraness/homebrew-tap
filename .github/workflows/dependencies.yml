@@ -25,7 +25,7 @@ jobs:
       contents: read
       checks: read
     steps:
-      - uses: hraness/product-skills/actions/deliver-dependabot@cfca565bff2a7f3ea51581651cdada39aaa497fc # v0.1.11
+      - uses: hraness/product-skills/actions/deliver-dependabot@f72d7cca0794bce77a996073b9196e639e085947 # v0.1.84
         with:
           repository-id: '1382935233'
           owner-id: '307125679'
