@@ -32,6 +32,7 @@ brew migrate --cask "$current"
 test "$(stat -f '%d:%i' "$plist")" = "$inode"
 brew info --cask --json=v2 "$legacy" |
   jq -e '.casks[0] | .token == "sponge-app" and (.old_tokens | index("sponge") != null) and .installed != null'
-brew list --cask --versions "$current"
+# brew list checks named arguments as directory names within Caskroom.
+brew list --cask --versions "${current##*/}"
 brew uninstall --cask "$current"
 [[ ! -e "$app" ]]
