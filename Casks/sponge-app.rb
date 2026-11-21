@@ -1,4 +1,4 @@
-cask "sponge" do
+cask "sponge-app" do
   version "1.8.1"
   sha256 "a6a3c1f0b68fcd67f052690dc23087e134cf4bc44c7583fbde5ba066f994faa9"
 

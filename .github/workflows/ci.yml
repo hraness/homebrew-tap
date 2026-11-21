@@ -54,7 +54,7 @@ jobs:
           else
             echo "formula=false" >> "$GITHUB_OUTPUT"
           fi
-          if echo "$changed" | grep -qE '^(Casks/|catalog/|tools/yaptake-|tools/oh-cask|tools/check-yaptake|tools/check-app-cask|test/|\.github/workflows/)'; then
+          if echo "$changed" | grep -qE '^(Casks/|catalog/|cask_renames\.json$|tools/check-sponge-rename|tools/yaptake-|tools/oh-cask|tools/check-yaptake|tools/check-app-cask|test/|\.github/workflows/)'; then
             echo "cask=true" >> "$GITHUB_OUTPUT"
           else
             echo "cask=false" >> "$GITHUB_OUTPUT"
@@ -238,7 +238,7 @@ jobs:
       matrix:
         include:
           - name: Sponge
-            cask: sponge
+            cask: sponge-app
             app: Sponge.app
             bundle: com.hraness.sponge.mac
           - name: Textmock
@@ -278,6 +278,9 @@ jobs:
       - name: Audit online when this change updates the cask
         if: contains(fromJSON(needs.changes.outputs.audit), matrix.cask)
         run: brew audit --strict --online --cask "$CASK"
+      - name: Migrate the existing Sponge installation to its new cask token
+        if: matrix.cask == 'sponge-app'
+        run: tools/check-sponge-rename
       - name: Install, adopt an existing copy and uninstall with data kept
         env:
           TOKEN: ${{ matrix.cask }}

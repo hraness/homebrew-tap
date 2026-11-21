@@ -113,13 +113,14 @@ keyboard shortcut. It needs macOS 15 or later and a Sponge account; capture
 runs on a computer with the [Sponge CLI](https://sponge.computer/download).
 
 ```sh
-brew install --cask hraness/tap/sponge
+brew install --cask hraness/tap/sponge-app
 open -a Sponge
 ```
 
-The app updates itself. `brew uninstall --cask hraness/tap/sponge` removes the
-app and leaves your library and settings in place. This cask is named for the
-app; the `sponge` formula in Homebrew core is a different tool (moreutils).
+The app updates itself. If you installed the earlier `hraness/tap/sponge` cask,
+run `brew update` and `brew migrate --cask hraness/tap/sponge-app` to move its
+Homebrew record to the new name. `brew uninstall --cask hraness/tap/sponge-app`
+removes the app and leaves your library and settings in place.
 
 The standalone Sponge CLI has a separate [release archive policy](docs/sponge-cli-distribution.md).
 

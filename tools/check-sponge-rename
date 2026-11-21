@@ -1,0 +1,37 @@
+#!/bin/bash
+# Exercise the rename against a real installed receipt on the CI job's clean Mac.
+set -euo pipefail
+[[ ${GITHUB_ACTIONS:-} == true && -n ${RUNNER_TEMP:-} ]]
+legacy=hraness/tap/sponge
+current=hraness/tap/sponge-app
+app=/Applications/Sponge.app
+old_file=Casks/sponge.rb
+saved="$RUNNER_TEMP/sponge-cask-renames.json"
+[[ ! -e "$app" && ! -e "$old_file" && ! -e "$saved" ]]
+test "$(jq -r '.sponge' cask_renames.json)" = sponge-app
+
+# Install the verified current bytes under their historical token in this disposable tap.
+# Restore the actual checkout before the migration and the subsequent ordinary cask tests.
+restore() {
+  if [[ -f "$saved" ]]; then
+    rm -f "$old_file"
+    mv "$saved" cask_renames.json
+  fi
+}
+trap restore EXIT
+mv cask_renames.json "$saved"
+sed 's/^cask "sponge-app" do$/cask "sponge" do/' Casks/sponge-app.rb > "$old_file"
+if brew command trust >/dev/null 2>&1; then brew trust --cask "$legacy"; fi
+brew install --cask "$legacy"
+plist="$app/Contents/Info.plist"
+inode=$(stat -f '%d:%i' "$plist")
+test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$plist")" = com.hraness.sponge.mac
+restore
+
+brew migrate --cask "$current"
+test "$(stat -f '%d:%i' "$plist")" = "$inode"
+brew info --cask --json=v2 "$legacy" |
+  jq -e '.casks[0] | .token == "sponge-app" and (.old_tokens | index("sponge") != null) and .installed != null'
+brew list --cask --versions "$current"
+brew uninstall --cask "$current"
+[[ ! -e "$app" ]]
