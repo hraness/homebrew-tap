@@ -46,6 +46,62 @@ class MirrorsTests(unittest.TestCase):
         self.assertEqual(m.PATH.fullmatch(next(row['path'] for row in rows if row['path'].endswith('/Yaptake-0.1.0.zip')))[3], '0.1.0')
         self.assertEqual(m.PATH.fullmatch('downloads/' + 'a' * 64 + '/Yaptake-0.1.0-private.zip')[3], '0.1.0')
 
+    def test_staged_inventory_selects_only_the_requested_signed_triple(self):
+        old, _, _, _ = fixture()
+        rows, files, package, _ = fixture(b'Public candidate', '400', 'Yaptake-0.1.0')
+        public = [{k: v for k, v in row.items() if k != 'sha1'} for row in old + rows]
+        fetch = mock.Mock(return_value=m.encode({'schemaVersion': 1, 'files': public}))
+        selected = m.staged_plan(package['sha256'], fetch)
+        fetch.assert_called_once_with('downloads.json')
+        self.assertEqual(selected, [{**row, 'sha1': None} for row in public[3:]])
+        self.assertEqual(m.validate_package(selected, files.__getitem__), package)
+        files[next(p for p in files if p.endswith('.sha256'))] += b'X'
+        with self.assertRaisesRegex(ValueError, 'changed'): m.validate_package(selected, files.__getitem__)
+
+    def test_staged_inventory_rejects_unsafe_missing_and_ambiguous_candidates(self):
+        rows, _, package, _ = fixture()
+        public = [{k: v for k, v in row.items() if k != 'sha1'} for row in rows]
+        digest = package['sha256']
+        for invalid in ('', digest.upper(), digest[:-1], digest + '/elsewhere', 'https://elsewhere.example/'):
+            fetch = mock.Mock()
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                m.staged_plan(invalid, fetch)
+            fetch.assert_not_called()
+        aliases = [{**row, 'path': row['path'].replace('Yaptake-', 'Yapwing-')} for row in public]
+        for attack in (public[:2], public + [public[0]], public + aliases,
+                       [{**public[0], 'path': m.ORIGIN + public[0]['path']}, *public[1:]],
+                       [{**public[0], 'url': 'https://elsewhere.example/file'}, *public[1:]],
+                       [{**public[0], 'length': True}, *public[1:]]):
+            with self.subTest(rows=attack), self.assertRaises(ValueError):
+                m.staged_plan(digest, lambda _: m.encode({'schemaVersion': 1, 'files': attack}))
+        with self.assertRaisesRegex(ValueError, 'exactly one'):
+            m.staged_plan('0' * 64, lambda _: m.encode({'schemaVersion': 1, 'files': public}))
+
+    def test_staged_dispatch_is_idempotent_after_canonical_files_redirect(self):
+        rows, _, package, record = fixture()
+        public = [{k: v for k, v in row.items() if k != 'sha1'} for row in rows]
+        catalog, _ = m.merge_catalog(m.empty_catalog(), record)
+        client = mock.Mock()
+        client.read_catalog.return_value = (catalog, 'a' * 40)
+
+        def open_inventory(path):
+            self.assertEqual(path, 'downloads.json', 'Registered files may redirect and must not be reopened')
+            return response(m.encode({'schemaVersion': 1, 'files': public}))
+
+        with mock.patch('sys.argv', ['mirror', '--staged-sha256', package['sha256']]), \
+                mock.patch.object(m, 'GitHub', return_value=client), \
+                mock.patch.object(m, 'source_open', side_effect=open_inventory), \
+                mock.patch.object(m, 'mirror', return_value=record) as publish:
+            m.main()
+            publish.assert_not_called()
+            public[0]['length'] += 1
+            with self.assertRaisesRegex(ValueError, 'catalog conflicts'): m.main()
+            publish.assert_not_called()
+            public[0]['length'] -= 1
+            client.read_catalog.return_value = (m.empty_catalog(), None)
+            m.main()
+            publish.assert_called_once_with(client, [{**row, 'sha1': None} for row in public])
+
     def test_append_is_stable_and_cannot_replace_or_roll_back_prior_entries(self):
         _, _, _, first = fixture(); _, _, _, second = fixture(b'Second synthetic archive', '226')
         catalog, changed = m.merge_catalog(m.empty_catalog(), first); self.assertTrue(changed)

@@ -20,6 +20,7 @@ BRANCH = 'yaptake-downloads'
 CATALOG = 'yaptake-downloads.json'
 ORIGIN = 'https://yaptake.com/'
 META_LIMIT = 128 * 1024
+INVENTORY_LIMIT = 2 * 1024 * 1024
 API_LIMIT = 4 * 1024 * 1024
 ASSET_LIMIT = 2 * 1024 * 1024 * 1024 - 1
 MAX_FILES = 768
@@ -54,7 +55,7 @@ class NoRedirect(HTTPRedirectHandler):
 
 
 def source_open(path, method='GET'):
-    need(isinstance(path, str) and (PATH.fullmatch(path) or path in ('release.json', 'appcast.xml')), 'Source is outside the exact public package allowlist')
+    need(isinstance(path, str) and (PATH.fullmatch(path) or path in ('release.json', 'appcast.xml', 'downloads.json')), 'Source is outside the exact public package allowlist')
     response = build_opener(NoRedirect()).open(Request(ORIGIN + path, method=method, headers={
         'User-Agent': 'Yaptake-immutable-mirror/1', 'Accept-Encoding': 'identity', 'Cache-Control': 'no-cache'}), timeout=60)
     need(response.status == 200 and response.geturl() == ORIGIN + path and response.headers.get('Content-Encoding', 'identity') == 'identity', 'Unexpected source response')
@@ -68,9 +69,10 @@ def declared_length(response, limit):
 
 
 def small_source(path):
+    limit = INVENTORY_LIMIT if path == 'downloads.json' else META_LIMIT
     with source_open(path) as response:
-        size = declared_length(response, META_LIMIT)
-        raw = response.read(META_LIMIT + 1)
+        size = declared_length(response, limit)
+        raw = response.read(limit + 1)
     need(len(raw) == size, 'Public metadata was truncated or oversized')
     return raw
 
@@ -112,6 +114,25 @@ def validate_package(rows, fetch=small_source):
     for key, length in [('sourceSHA', 40), ('sourceTreeSHA', 40), ('sourceSnapshotSHA256', 64), ('symbolsSHA256', 64), ('appTreeSHA256', 64)]:
         need(isinstance(package.get(key), str) and re.fullmatch('[a-f0-9]{' + str(length) + '}', package[key]), 'Package is missing its finalized content provenance')
     return package
+
+
+def archive_digest(value):
+    need(isinstance(value, str) and re.fullmatch('[a-f0-9]{64}', value), 'Expected an exact lowercase archive SHA-256')
+    return value
+
+
+def staged_plan(sha256, fetch=small_source):
+    """Select only the named public triple, including when its URLs redirect to a registered mirror."""
+    archive_digest(sha256)
+    inventory = parse(fetch('downloads.json'))
+    need(isinstance(inventory, dict) and set(inventory) == {'schemaVersion', 'files'} and type(inventory['schemaVersion']) is int and inventory['schemaVersion'] == 1, 'Invalid public download inventory')
+    files = inventory['files']
+    need(isinstance(files, list) and 3 <= len(files) <= MAX_FILES, 'Expected a bounded inventory of public archive triples')
+    need(all(isinstance(row, dict) and set(row) == {'path', 'sha256', 'length'} for row in files), 'Expected canonical public download identities')
+    groups = validate_rows([{**row, 'sha1': None} for row in files], sha1_required=False)
+    matches = [rows for (archive, _), rows in groups.items() if archive == sha256]
+    need(len(matches) == 1, 'Expected exactly one complete public package for the staged SHA-256')
+    return matches[0]
 
 
 def current_plan(fetch=small_source, catalog=None):
@@ -380,7 +401,9 @@ def mirror(github, rows):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--preflight', action='store_true')
-    parser.add_argument('--include-history', action='store_true', help='Admit the reviewed exact public history seed before the current release')
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument('--staged-sha256', type=archive_digest, help='Mirror just the exact archive SHA-256 already listed in yaptake.com/downloads.json')
+    selection.add_argument('--include-history', action='store_true', help='Admit the reviewed exact public history seed before the current release')
     args = parser.parse_args()
     github = GitHub(os.environ.get('YAPTAKE_RELEASE_TOKEN'))
     github.preflight()
@@ -393,7 +416,10 @@ def main():
         seed = parse(Path('catalog/yaptake-history.json').read_bytes())
         need(isinstance(seed, dict) and set(seed) == {'schemaVersion', 'files'} and type(seed['schemaVersion']) is int and seed['schemaVersion'] == 1, 'Invalid reviewed history seed')
         plans.extend(validate_rows(seed['files']).values())
-    plans.extend(validate_rows(current_plan(catalog=previous), False).values())
+    if args.staged_sha256:
+        plans.append(staged_plan(args.staged_sha256))
+    else:
+        plans.extend(validate_rows(current_plan(catalog=previous), False).values())
     for rows in plans:
         known = next((record for record in previous['archives'] if record['sha256'] == PATH.fullmatch(rows[0]['path'])[1]), None)
         if known is not None:
