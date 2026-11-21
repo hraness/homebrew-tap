@@ -54,7 +54,7 @@ jobs:
           else
             echo "formula=false" >> "$GITHUB_OUTPUT"
           fi
-          if echo "$changed" | grep -qE '^(Casks/|catalog/|cask_renames\.json$|tools/check-sponge-rename|tools/yaptake-|tools/oh-cask|tools/check-yaptake|tools/check-app-cask|test/|\.github/workflows/)'; then
+          if echo "$changed" | grep -qE '^(Casks/|catalog/|cask_renames\.json$|tools/check-sponge-rename|tools/yaptake-|tools/oh-cask|tools/sponge-cask|tools/check-yaptake|tools/check-app-cask|test/|\.github/workflows/)'; then
             echo "cask=true" >> "$GITHUB_OUTPUT"
           else
             echo "cask=false" >> "$GITHUB_OUTPUT"
@@ -85,6 +85,9 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          filter: blob:none
       - name: Install Ruby for formula syntax checks
         run: |
           sudo apt-get update
@@ -99,15 +102,27 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
-      - name: Public Yaptake and OH generators and preservation boundaries
+      - name: Public generators and preservation boundaries
         run: |
           node --test test/*.test.mjs
           python3 -m unittest discover -s test -p 'test_*.py' -v
           node tools/yaptake-cask.mjs --check
           node tools/oh-cask.mjs --check
           node tools/oh-router-formula.mjs --check
+          python3 tools/sponge-cask.py --check
           bash -n tools/check-yaptake-install
           bash -n tools/check-app-cask
+      - name: Verify the signed Sponge archive and compare the base catalog
+        if: contains(fromJSON(needs.changes.outputs.audit), 'sponge-app')
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          args=(--check --archive)
+          if [[ "$BASE" =~ ^[0-9a-f]{40}$ ]] && git cat-file -e "$BASE:catalog/sponge-app.json" 2>/dev/null; then
+            git show "$BASE:catalog/sponge-app.json" > "$RUNNER_TEMP/sponge-base.json"
+            args+=(--previous "$RUNNER_TEMP/sponge-base.json")
+          fi
+          python3 tools/sponge-cask.py "${args[@]}"
       - name: Formula matches the generator output
         # Fetches release sidecars, so only run it when the formula side changed.
         if: needs.changes.outputs.formula == 'true'
