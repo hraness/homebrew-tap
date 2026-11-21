@@ -61,6 +61,23 @@ reviewed `catalog/yaptake-history.json` seed, which accounts for every historica
 public download path. The seed contains public content hashes and lengths;
 it contains no provider file or deployment identifiers.
 
+To preserve a signed candidate before activation, copy its full lowercase archive
+SHA-256 from `https://yaptake.com/downloads.json`. With workflow dispatch access
+to the tap, run:
+
+```sh
+gh workflow run mirror-yaptake.yml --repo hraness/homebrew-tap --ref main -f staged-sha256="$sha256"
+```
+
+The same selection is available locally as
+`python3 tools/yaptake-mirrors.py --staged-sha256 "$sha256"` with the scoped
+App token described below. This selection admits exactly the matching public ZIP,
+checksum and package manifest. The publisher checks their hashes and lengths
+against the public inventory and verifies the signing and notarization receipt.
+An identical catalog entry completes immediately, including after the
+website redirects these addresses to the immutable release. The active
+website download, updater and cask continue to follow the active signed feed.
+
 A release tag includes the full app version, build number and archive SHA-256:
 `yaptake-VERSION-BUILD-SHA256`. It has exactly three assets. Existing Yapwing
 filenames remain unchanged. The `private` suffix on archives finalized before

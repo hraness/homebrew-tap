@@ -6,6 +6,10 @@ on:
     types: [yaptake-release-active]
   workflow_dispatch:
     inputs:
+      staged-sha256:
+        description: Mirror only this exact archive SHA-256 already listed in the public downloads.json
+        type: string
+        required: false
       include-history:
         description: Preserve all reviewed historical download paths (safe to repeat)
         type: boolean
@@ -57,10 +61,12 @@ jobs:
       - name: Mirror exact public bytes and conditionally append immutable identities
         env:
           YAPTAKE_RELEASE_TOKEN: ${{ steps.app.outputs.token }}
+          STAGED_SHA256: ${{ inputs.staged-sha256 }}
           INCLUDE_HISTORY: ${{ inputs.include-history }}
           PREFLIGHT: ${{ inputs.preflight }}
         run: |
           args=()
           if test "$PREFLIGHT" = true; then args+=(--preflight); fi
+          if test -n "$STAGED_SHA256"; then args+=(--staged-sha256 "$STAGED_SHA256"); fi
           if test "$INCLUDE_HISTORY" = true; then args+=(--include-history); fi
           python3 tools/yaptake-mirrors.py "${args[@]}"
