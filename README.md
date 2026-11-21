@@ -121,6 +121,8 @@ The app updates itself. `brew uninstall --cask hraness/tap/sponge` removes the
 app and leaves your library and settings in place. This cask is named for the
 app; the `sponge` formula in Homebrew core is a different tool (moreutils).
 
+The standalone Sponge CLI has a separate [release archive policy](docs/sponge-cli-distribution.md).
+
 ## Textmock for Mac
 
 [Textmock](https://textmock.com/mac) makes iMessage-style conversations. Write
