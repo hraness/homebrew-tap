@@ -124,6 +124,13 @@ removes the app and leaves your library and settings in place.
 
 The standalone Sponge CLI has a separate [release archive policy](docs/sponge-cli-distribution.md).
 
+The **Update Sponge** workflow checks the public Mac release every four hours.
+When the version and build both advance, it verifies the Sparkle signature,
+archive checksum and app identity, then opens a cask update for the protected
+Homebrew checks. Maintainers can also run the workflow from the Actions tab.
+To verify the currently pinned archive locally, use
+`python3 tools/sponge-cask.py --check --archive` with OpenSSL 3 or later.
+
 ## Textmock for Mac
 
 [Textmock](https://textmock.com/mac) makes iMessage-style conversations. Write
