@@ -1256,6 +1256,39 @@
           "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.2-369-5874a432f320676a738f4a21a6e10ac77a79a3abfedd00dcd5fd10a775ac37b0/Yaptake-0.1.2.zip"
         }
       ]
+    },
+    {
+      "version": "0.1.3",
+      "build": "372",
+      "sha256": "57fe5d801d01648f4173b62e5323d4f8c94fb95868bbd4c70351ef9d4383fcad",
+      "tag": "yaptake-0.1.3-372-57fe5d801d01648f4173b62e5323d4f8c94fb95868bbd4c70351ef9d4383fcad",
+      "releaseID": 454091868,
+      "files": [
+        {
+          "path": "downloads/57fe5d801d01648f4173b62e5323d4f8c94fb95868bbd4c70351ef9d4383fcad/Yaptake-0.1.3.manifest.json",
+          "sha256": "85bf0232f7202f05bdfc3a179208d1f4581a0e826b346547a3e5583824041fa6",
+          "length": 17709,
+          "sha1": "1c798e0bddbcdf2d8638a042417b1ebb5c094971",
+          "assetID": 777368636,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.3-372-57fe5d801d01648f4173b62e5323d4f8c94fb95868bbd4c70351ef9d4383fcad/Yaptake-0.1.3.manifest.json"
+        },
+        {
+          "path": "downloads/57fe5d801d01648f4173b62e5323d4f8c94fb95868bbd4c70351ef9d4383fcad/Yaptake-0.1.3.sha256",
+          "sha256": "e69ffebb943a31ec33f89309a009eb54d2a7b32d3c5fce78db39b014b4456d4b",
+          "length": 84,
+          "sha1": "b45817633bb7ed93fb7c2568e55f30c4441890b2",
+          "assetID": 777368684,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.3-372-57fe5d801d01648f4173b62e5323d4f8c94fb95868bbd4c70351ef9d4383fcad/Yaptake-0.1.3.sha256"
+        },
+        {
+          "path": "downloads/57fe5d801d01648f4173b62e5323d4f8c94fb95868bbd4c70351ef9d4383fcad/Yaptake-0.1.3.zip",
+          "sha256": "57fe5d801d01648f4173b62e5323d4f8c94fb95868bbd4c70351ef9d4383fcad",
+          "length": 34891856,
+          "sha1": "1c738503655efc395c8f50fd8b6d8f821a54eb09",
+          "assetID": 777368747,
+          "url": "https://github.com/hraness/homebrew-tap/releases/download/yaptake-0.1.3-372-57fe5d801d01648f4173b62e5323d4f8c94fb95868bbd4c70351ef9d4383fcad/Yaptake-0.1.3.zip"
+        }
+      ]
     }
   ]
 }
