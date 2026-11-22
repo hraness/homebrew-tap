@@ -1,8 +1,8 @@
 cask "dawn" do
-  version "0.66.2"
-  sha256 "7627355c1c58c9af8ca163a1868ef40ea716c9f64210cbdee6452ffc1f5dce22"
+  version "0.67.2"
+  sha256 "e9ab25e3b759a085dc86d58d990c1555cad57ad693153dfc8b68c0a691750b38"
 
-  url "https://publish.dawnav.com/mac/7627355c1c58c9af8ca163a1868ef40ea716c9f64210cbdee6452ffc1f5dce22/DAWN-#{version}.zip"
+  url "https://publish.dawnav.com/mac/e9ab25e3b759a085dc86d58d990c1555cad57ad693153dfc8b68c0a691750b38/DAWN-#{version}.zip"
   name "DAWN"
   desc "Make a loop from a prompt and shape it into a song while it plays"
   homepage "https://dawnav.com/desktop"
