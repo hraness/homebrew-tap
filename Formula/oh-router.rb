@@ -5,22 +5,25 @@
 class OhRouter < Formula
   desc "Session router, terminal safety guard and board worker for coding agents"
   homepage "https://ohrouter.com"
-  url "https://ohrouter.com/downloads/0b9709f70c47e8785c893cdf47559d78440b7a3c7f8df0da5c8cb7bda0afc507/oh-router-v0.1.1-aarch64-apple-darwin.tar.gz"
-  sha256 "0b9709f70c47e8785c893cdf47559d78440b7a3c7f8df0da5c8cb7bda0afc507"
+  url "https://ohrouter.com/downloads/b1d9098601175f4bfb230f5181b5f2a33cefc401e4beecc481ba68f9fe28e608/oh-router-v0.1.3-aarch64-apple-darwin.tar.gz"
+  sha256 "b1d9098601175f4bfb230f5181b5f2a33cefc401e4beecc481ba68f9fe28e608"
   license any_of: ["MIT", "Apache-2.0"]
 
   on_macos do
-    depends_on arch: :arm64
+    on_intel do
+      url "https://ohrouter.com/downloads/32d44dc5fc9dd3c528f3fcfee81444978864081fafbcf7a0c27e734b5ea91c08/oh-router-v0.1.3-x86_64-apple-darwin.tar.gz"
+      sha256 "32d44dc5fc9dd3c528f3fcfee81444978864081fafbcf7a0c27e734b5ea91c08"
+    end
   end
 
   on_linux do
     on_intel do
-      url "https://ohrouter.com/downloads/c0962ffb19b31eda5bf45760f18aa159503d58bf8f60d2006ba58cc9db941e81/oh-router-v0.1.1-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "c0962ffb19b31eda5bf45760f18aa159503d58bf8f60d2006ba58cc9db941e81"
+      url "https://ohrouter.com/downloads/1fa5ba2d5cc6ae2fe6f366bc92ef17e848e3df42f5d0509e9f630f8e3b9dac57/oh-router-v0.1.3-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "1fa5ba2d5cc6ae2fe6f366bc92ef17e848e3df42f5d0509e9f630f8e3b9dac57"
     end
     on_arm do
-      url "https://ohrouter.com/downloads/a0b6b3dd4d0b160c87c0fd4af5e8bec5a2ed1595b8aedaaee3621823f4a40da7/oh-router-v0.1.1-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "a0b6b3dd4d0b160c87c0fd4af5e8bec5a2ed1595b8aedaaee3621823f4a40da7"
+      url "https://ohrouter.com/downloads/c64e333786f09e830c3e8773923a877e1cf1a642a11c75644841da874918a583/oh-router-v0.1.3-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "c64e333786f09e830c3e8773923a877e1cf1a642a11c75644841da874918a583"
     end
   end
 
