@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
   "product": "oh",
-  "version": "0.1.1",
-  "build": "4",
-  "url": "https://oh.computer/downloads/2ba35372dc2618fe9dde855f1ccd6432df5410c77e0f0ba275ef007b3f3995b7/OH-0.1.1.zip",
-  "sha256": "2ba35372dc2618fe9dde855f1ccd6432df5410c77e0f0ba275ef007b3f3995b7",
-  "length": 7388142,
+  "version": "0.2.0",
+  "build": "6",
+  "url": "https://oh.computer/downloads/f9794a8a1bcc1eff62ec49f18c44d673b0475e67bd322d394151ffdf5fc8c2ff/OH-0.2.0.zip",
+  "sha256": "f9794a8a1bcc1eff62ec49f18c44d673b0475e67bd322d394151ffdf5fc8c2ff",
+  "length": 12458161,
   "architecture": "arm64",
   "minimumMacOS": "15.0",
-  "edSignature": "GChZG/OFKbDLiAk1lGXjuByO1h+j/s0BSu0UGn8DctV3f0pSu91dGa2yJDCN7o9cL/UJ3QNkaGMmj0UZNfyYBg=="
+  "edSignature": "ZrBAbzSQURZ2CbYR0cPcOEWD6FsyLo5qenXKqTeBMCj9G8jbsjZimkx5HeDIdi765i+bs2bJSNeuR0urJ55jCA=="
 }
