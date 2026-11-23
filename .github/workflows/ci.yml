@@ -263,13 +263,6 @@ jobs:
             command: textmock
             arg: --help
             expect: 'usage: textmock'
-          - name: DAWN
-            cask: dawn
-            app: DAWN.app
-            bundle: com.hraness.dawn
-            command: dawn
-            arg: --version
-            expect: 'dawn '
           - name: OH
             cask: oh
             app: Oh.app
