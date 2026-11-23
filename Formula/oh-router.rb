@@ -5,25 +5,25 @@
 class OhRouter < Formula
   desc "Session router, terminal safety guard and board worker for coding agents"
   homepage "https://ohrouter.com"
-  url "https://ohrouter.com/downloads/edd5ac052b7c01cf8b76492c535aa97ce9f9e6eae8fdf0533dffac556af2cffe/oh-router-v0.1.4-aarch64-apple-darwin.tar.gz"
-  sha256 "edd5ac052b7c01cf8b76492c535aa97ce9f9e6eae8fdf0533dffac556af2cffe"
+  url "https://ohrouter.com/downloads/a530ebdf104f94efd651e2f1193904cf52ce45544f3b65b81731befc6c60892b/oh-router-v0.1.5-aarch64-apple-darwin.tar.gz"
+  sha256 "a530ebdf104f94efd651e2f1193904cf52ce45544f3b65b81731befc6c60892b"
   license any_of: ["MIT", "Apache-2.0"]
 
   on_macos do
     on_intel do
-      url "https://ohrouter.com/downloads/6cad6d7c9d85cc410e3f02ed1ed1180978e37504b99fb37a7de48a8142339d2d/oh-router-v0.1.4-x86_64-apple-darwin.tar.gz"
-      sha256 "6cad6d7c9d85cc410e3f02ed1ed1180978e37504b99fb37a7de48a8142339d2d"
+      url "https://ohrouter.com/downloads/a39a5ffdac45be086ee4ce922f19584c63a6fd570abdea444afbb760abdde6d0/oh-router-v0.1.5-x86_64-apple-darwin.tar.gz"
+      sha256 "a39a5ffdac45be086ee4ce922f19584c63a6fd570abdea444afbb760abdde6d0"
     end
   end
 
   on_linux do
     on_intel do
-      url "https://ohrouter.com/downloads/1593c216ecd96165f94b63be7ee990443d822e3d2067082a4ae01a5429e72ed0/oh-router-v0.1.4-x86_64-unknown-linux-gnu.tar.gz"
-      sha256 "1593c216ecd96165f94b63be7ee990443d822e3d2067082a4ae01a5429e72ed0"
+      url "https://ohrouter.com/downloads/9ba79b40f9c9150614a0af083b7cdc601a3c076c66efa4eb6f29be1e00667156/oh-router-v0.1.5-x86_64-unknown-linux-gnu.tar.gz"
+      sha256 "9ba79b40f9c9150614a0af083b7cdc601a3c076c66efa4eb6f29be1e00667156"
     end
     on_arm do
-      url "https://ohrouter.com/downloads/3ff9afc3aebed9e889a4e33baaab9ad678a95ddf6f7f9930695e40e941ebc816/oh-router-v0.1.4-aarch64-unknown-linux-musl.tar.gz"
-      sha256 "3ff9afc3aebed9e889a4e33baaab9ad678a95ddf6f7f9930695e40e941ebc816"
+      url "https://ohrouter.com/downloads/55ca95defb5ccc6de116ee9665b2e54572e1a10b501b1e6e06dba7d257eca286/oh-router-v0.1.5-aarch64-unknown-linux-musl.tar.gz"
+      sha256 "55ca95defb5ccc6de116ee9665b2e54572e1a10b501b1e6e06dba7d257eca286"
     end
   end
 
