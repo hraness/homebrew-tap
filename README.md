@@ -1,8 +1,7 @@
 # Hraness Homebrew tap
 
-This tap installs five Mac apps ([OH](#oh), [Yaptake](#yaptake),
-[Sponge for Mac](#sponge-for-mac), [Textmock for Mac](#textmock-for-mac) and
-[DAWN](#dawn)) and the standalone [OH Router](#oh-router) command-line tool.
+This tap installs four Mac apps ([OH](#oh), [Yaptake](#yaptake),
+[Sponge for Mac](#sponge-for-mac) and [Textmock for Mac](#textmock-for-mac)) and the standalone [OH Router](#oh-router) command-line tool.
 You need [Homebrew](https://brew.sh).
 
 If an app is already in your Applications folder from its website,
@@ -153,29 +152,6 @@ export a conversation from Terminal or a coding agent.
 The app updates itself, and the command updates with it.
 `brew uninstall --cask hraness/tap/textmock` removes the app and the command and
 leaves your conversations and settings in place.
-
-## DAWN
-
-[DAWN](https://dawnav.com/desktop) makes music from a prompt or a score. In the
-app, a sentence starts a loop that keeps playing while you edit it. The `dawn`
-command checks and renders songs written as TypeScript scores. DAWN needs an
-Apple Silicon Mac with macOS 13 or later. Composing, checking and rendering work
-offline and need no account.
-
-```sh
-brew install --cask hraness/tap/dawn
-dawn --version
-open -a DAWN
-```
-
-The cask links the `dawn` command inside the app, so you can skip **Install dawn
-command**. Follow [Make your first song](https://dawnav.com/docs/first-song) to
-write an eight-bar song and render it to WAV and MIDI. The
-[CLI reference](https://dawnav.com/docs/cli) describes the other commands.
-
-The app updates itself, and the command updates with it.
-`brew uninstall --cask hraness/tap/dawn` removes the app and the command and
-leaves your projects and settings in place.
 
 ## Retired Valhalla formula
 
