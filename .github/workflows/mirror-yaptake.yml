@@ -26,7 +26,7 @@ concurrency:
 jobs:
   mirror:
     if: github.repository == 'hraness/homebrew-tap' && github.repository_id == '1382935233' && github.ref == 'refs/heads/main'
-    runs-on: hraness-cf
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - name: Require the existing release machine identity
