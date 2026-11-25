@@ -1,7 +1,8 @@
 # Hraness Homebrew tap
 
 This tap installs four Mac apps ([OH](#oh), [Yaptake](#yaptake),
-[Sponge for Mac](#sponge-for-mac) and [Textmock for Mac](#textmock-for-mac)) and the standalone [OH Router](#oh-router) command-line tool.
+[Sponge for Mac](#sponge-for-mac) and [Textmock for Mac](#textmock-for-mac)) the standalone [OH Router](#oh-router) command-line tool and the
+[presence](#presence) command-line tool.
 You need [Homebrew](https://brew.sh).
 
 If an app is already in your Applications folder from its website,
@@ -62,6 +63,17 @@ Follow the [quickstart](https://ohrouter.com/docs/quickstart) to start `ohd`,
 spawn or steer sessions through the 2D VT limit-dialog safety guard, and run a
 `@vercel/board` worker. On a Mac where `hraness/tap/oh` is already installed,
 `oh-router` is already linked by the cask.
+
+## presence
+
+Install [presence](https://github.com/hraness/presence), a tiny command-line
+tool that tells whether someone is using this Mac: away, idle, typing, watching
+video or on a call. It needs macOS 13 or later and no permissions.
+
+```sh
+brew install hraness/tap/presence
+presence
+```
 
 ## Yaptake
 

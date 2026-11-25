@@ -170,6 +170,7 @@ jobs:
           if brew command trust >/dev/null 2>&1; then
             brew trust --formula hraness/tap/vhalla
             brew trust --formula hraness/tap/oh-router
+            brew trust --formula hraness/tap/presence
           fi
       - name: brew style
         run: brew style hraness/tap
@@ -177,6 +178,7 @@ jobs:
         run: |
           brew audit --strict --formula hraness/tap/vhalla
           brew audit --strict --formula hraness/tap/oh-router
+          brew audit --strict --formula hraness/tap/presence
       - name: Install, test and uninstall oh-router formula
         run: |
           brew install hraness/tap/oh-router
@@ -184,6 +186,14 @@ jobs:
           oh-router --version | grep -Fq "oh-router "
           brew uninstall hraness/tap/oh-router
           test ! -d "$(brew --cellar)/oh-router"
+      - name: Install, test and uninstall presence formula
+        if: runner.os == 'macOS'
+        run: |
+          brew install hraness/tap/presence
+          brew test hraness/tap/presence
+          presence --version | grep -Fq "presence "
+          brew uninstall hraness/tap/presence
+          test ! -d "$(brew --cellar)/presence"
       - name: Confirm retired formula metadata
         run: |
           brew info --json=v2 hraness/tap/vhalla | ruby -rjson -e '
