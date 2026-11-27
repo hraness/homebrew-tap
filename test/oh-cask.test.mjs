@@ -108,3 +108,40 @@ test("oh-router-formula validates multi-platform release manifest and renders Fo
   assert.doesNotMatch(intelFormula, /depends_on arch: :arm64/);
   assert.throws(() => admitRouterUpdate(intelRelease, release("0.1.1", "4".repeat(64))), /cannot change/);
 });
+
+test("oh-router accepts the ohputer.com/router origin and the former ohrouter.com origin", () => {
+  const targets = ["aarch64-apple-darwin", "x86_64-unknown-linux-gnu", "aarch64-unknown-linux-musl"];
+  const release = (version, origin, digest = (target) => String(targets.indexOf(target) + 6).repeat(64)) => ({
+    schemaVersion: 1,
+    version,
+    targets: Object.fromEntries(targets.map((target) => [target, {
+      sha256: digest(target),
+      url: `${origin}/downloads/${digest(target)}/oh-router-v${version}-${target}.tar.gz`,
+    }])),
+  });
+  const NEW = "https://ohputer.com/router";
+  const OLD = "https://ohrouter.com";
+  assert.equal(validateRouterRelease(release("0.1.13", NEW)).targets["aarch64-apple-darwin"].url, `${NEW}/downloads/${"6".repeat(64)}/oh-router-v0.1.13-aarch64-apple-darwin.tar.gz`);
+  assert.equal(validateRouterRelease(release("0.1.9", OLD)).version, "0.1.9");
+
+  // A real update from an old-origin record to a new-origin manifest.
+  const moved = admitRouterUpdate(release("0.1.9", OLD), release("0.1.13", NEW));
+  assert.equal(moved.version, "0.1.13");
+  const formula = renderFormula(moved);
+  assert.ok(formula.includes(`url "${NEW}/downloads/`));
+  assert.ok(formula.includes(`homepage "${NEW}"`));
+  assert.doesNotMatch(formula, /ohrouter\.com/);
+
+  // Same version moving origin keeps identity; a changed digest or rollback does not pass.
+  assert.equal(admitRouterUpdate(release("0.1.13", OLD), release("0.1.13", NEW)).version, "0.1.13");
+  assert.throws(() => admitRouterUpdate(release("0.1.13", OLD), release("0.1.13", NEW, () => "f".repeat(64))), /cannot change/);
+  assert.throws(() => admitRouterUpdate(release("0.1.13", NEW), release("0.1.9", OLD)), /rollback/i);
+
+  // Look-alike origins, a digest that differs from the path, and plain http stay refused.
+  for (const origin of ["https://ohputer.com", "https://ohputer.com/router/x", "https://evil.ohputer.com/router", "http://ohputer.com/router", "https://ohrouter.com.evil.test"]) {
+    assert.throws(() => validateRouterRelease(release("0.1.13", origin)), /Unexpected archive URL/, origin);
+  }
+  const mismatched = release("0.1.13", NEW);
+  mismatched.targets["aarch64-apple-darwin"].sha256 = "e".repeat(64);
+  assert.throws(() => validateRouterRelease(mismatched), /Unexpected archive URL/);
+});

@@ -1,6 +1,6 @@
 # Maintain OH distribution
 
-OH's website selects the app release and ohrouter.com selects the command-line
+OH's website selects the app release and ohputer.com/router selects the command-line
 release. This tap distributes those selections through Homebrew. Publishing
 here does not select a new version for the app or its updater.
 
@@ -24,14 +24,16 @@ fields from the appcast, so builds that share an app version still update.
 
 ## The oh-router formula
 
-`tools/oh-router-formula.mjs` reads `https://ohrouter.com/release.json` and
+`tools/oh-router-formula.mjs` reads `https://ohputer.com/router/release.json` and
 generates `Formula/oh-router.rb` for Apple Silicon and for Linux on
 `x86_64` and `arm64`. It includes an Intel Mac build once the manifest carries
 a published `x86_64-apple-darwin` archive. Until then Homebrew reports an
 Apple Silicon (`arm64`) requirement on macOS. Each archive URL must be the content-addressed
-`https://ohrouter.com/downloads/<sha256>/oh-router-v<version>-<target>.tar.gz`
-path for its own checksum. The generator refuses version rollback and refuses
-changed archives for an admitted version.
+`https://ohputer.com/router/downloads/<sha256>/oh-router-v<version>-<target>.tar.gz`
+path for its own checksum, or the same path on the former `https://ohrouter.com`
+origin. The generator refuses version rollback and refuses changed checksums
+for an admitted version; moving an admitted archive between those two origins
+keeps its identity.
 
 ## Automatic updates
 
