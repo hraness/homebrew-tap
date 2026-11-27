@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-# Universal macOS binary from presence's immutable GitHub release.
+# Universal macOS binary from presence's GitHub release.
+# Regenerate with: node tools/presence-formula.mjs --refresh
 class Presence < Formula
   desc "Tell if someone is using this Mac: away, idle, typing, video or call"
   homepage "https://github.com/hraness/presence"

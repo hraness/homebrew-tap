@@ -1,0 +1,83 @@
+name: Update presence
+on:
+  schedule:
+    - cron: '23 */3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: update-presence-formula
+  cancel-in-progress: false
+jobs:
+  refresh:
+    if: github.repository == 'hraness/homebrew-tap' && github.repository_id == '1382935233' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Require the selected-repository machine identity
+        env:
+          APP_ID: ${{ vars.DISTRIBUTION_APP_ID }}
+          APP_KEY: ${{ secrets.DISTRIBUTION_APP_PRIVATE_KEY }}
+        run: |
+          test "$APP_ID" = 5762098 && test -n "$APP_KEY" || { echo 'Configure the distribution GitHub App for this selected tap; no workflow-token fallback is permitted.' >&2; exit 78; }
+      - uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        id: app
+        with:
+          app-id: ${{ vars.DISTRIBUTION_APP_ID }}
+          private-key: ${{ secrets.DISTRIBUTION_APP_PRIVATE_KEY }}
+          owner: hraness
+          repositories: homebrew-tap
+          permission-contents: write
+          permission-pull-requests: write
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Verify exact App owner, installation and one-tap token
+        env:
+          APP_ID: ${{ vars.DISTRIBUTION_APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.DISTRIBUTION_APP_PRIVATE_KEY }}
+          APP_SLUG: ${{ steps.app.outputs.app-slug }}
+          INSTALLATION_ID: ${{ steps.app.outputs.installation-id }}
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+        run: node tools/check-app-authority.mjs distribution
+      - name: Admit the latest presence release
+        id: refresh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node tools/presence-formula.mjs --refresh --archive-out "$RUNNER_TEMP/presence.tar.gz"
+      - name: Verify the archive was built by presence's release workflow for its tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.refresh.outputs.version }}
+        run: |
+          gh attestation verify "$RUNNER_TEMP/presence.tar.gz" \
+            --repo hraness/presence \
+            --signer-workflow hraness/presence/.github/workflows/release.yml \
+            --source-ref "refs/tags/v$VERSION" \
+            --deny-self-hosted-runners
+      - uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
+        id: pr
+        with:
+          token: ${{ steps.app.outputs.token }}
+          branch: automation/presence-formula
+          base: main
+          delete-branch: true
+          sign-commits: true
+          add-paths: |
+            Formula/presence.rb
+          commit-message: Update presence to ${{ steps.refresh.outputs.version }}
+          title: Update presence to ${{ steps.refresh.outputs.version }}
+          body: |
+            <!-- presence-formula-refresh:v1 -->
+            Move the presence formula to the latest hraness/presence GitHub release. The generator checked the tag and asset name, matched the downloaded bytes against GitHub's asset digest and the .sha256 sidecar, and refused rollback or a changed archive for an admitted version. The archive's build provenance names presence's release workflow at this tag on a GitHub-hosted runner. Required checks audit, install and test the formula before protected auto-merge.
+      - name: Use protected auto-merge for the exact generated head
+        if: steps.pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.pull-request-number }}
+          PR_HEAD: ${{ steps.pr.outputs.pull-request-head-sha }}
+        run: gh pr merge "$PR_NUMBER" --repo hraness/homebrew-tap --auto --squash --match-head-commit "$PR_HEAD"

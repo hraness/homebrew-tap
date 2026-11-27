@@ -99,6 +99,7 @@ jobs:
           node --check tools/brew-formula.mjs
           node --check tools/oh-cask.mjs
           node --check tools/oh-router-formula.mjs
+          node --check tools/presence-formula.mjs
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
@@ -109,6 +110,7 @@ jobs:
           node tools/yaptake-cask.mjs --check
           node tools/oh-cask.mjs --check
           node tools/oh-router-formula.mjs --check
+          node tools/presence-formula.mjs --check
           python3 tools/sponge-cask.py --check
           bash -n tools/check-yaptake-install
           bash -n tools/check-app-cask
