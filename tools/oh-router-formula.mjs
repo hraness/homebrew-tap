@@ -1,12 +1,16 @@
 #!/usr/bin/env node
-// Regenerate Formula/oh-router.rb from https://ohrouter.com/release.json
+// Regenerate Formula/oh-router.rb from https://ohputer.com/router/release.json
 // (or a local release.json file via --from <path>), verifying each target's
 // immutable content-addressed URL and SHA-256 digest.
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const ORIGIN = "https://ohrouter.com";
+// The router moved from ohrouter.com to ohputer.com/router. Its manifest is read
+// from the current origin; archives may still name the old content-addressed
+// path, which serves the same bytes.
+const ORIGIN = "https://ohputer.com/router";
+const ARCHIVE_ORIGINS = [ORIGIN, "https://ohrouter.com"];
 const INTEL_MAC = "x86_64-apple-darwin";
 const TARGETS = [
   "aarch64-apple-darwin",
@@ -28,8 +32,8 @@ export function validateRouterRelease(manifest) {
     if (target === INTEL_MAC && entry === undefined) continue;
     need(entry && typeof entry.sha256 === "string" && /^[a-f0-9]{64}$/.test(entry.sha256), `Missing valid sha256 for ${target}`);
     const expectedName = `oh-router-v${v}-${target}.tar.gz`;
-    const expectedUrl = `${ORIGIN}/downloads/${entry.sha256}/${expectedName}`;
-    need(entry.url === expectedUrl, `Unexpected archive URL for ${target}: ${entry.url}`);
+    const allowed = ARCHIVE_ORIGINS.map((origin) => `${origin}/downloads/${entry.sha256}/${expectedName}`);
+    need(allowed.includes(entry.url), `Unexpected archive URL for ${target}: ${entry.url}`);
     out.targets[target] = { sha256: entry.sha256, url: entry.url };
   }
   return out;
@@ -45,7 +49,9 @@ export function admitRouterUpdate(previous, next) {
   const b = admitted.version.split(".").map(Number);
   const first = a.findIndex((part, index) => part !== b[index]);
   need(first < 0 || b[first] > a[first], "Version rollback refused");
-  if (first < 0) need(json(current) === json(admitted), "An admitted version cannot change its archive identity");
+  // Moving between the approved origins keeps the identity; the digests may not change.
+  const identity = (record) => json(Object.fromEntries(Object.entries(record.targets).map(([target, entry]) => [target, entry.sha256])));
+  if (first < 0) need(identity(current) === identity(admitted), "An admitted version cannot change its archive identity");
   return admitted;
 }
 
@@ -69,11 +75,11 @@ export function renderFormula(record) {
     end` : "    depends_on arch: :arm64";
   return `# frozen_string_literal: true
 
-# Binary distribution of oh-router from immutable ohrouter.com release archives.
+# Binary distribution of oh-router from immutable ohputer.com/router release archives.
 # Regenerate checksums/versions with: node tools/oh-router-formula.mjs --refresh
 class OhRouter < Formula
   desc "Session router, terminal safety guard and board worker for coding agents"
-  homepage "https://ohrouter.com"
+  homepage "https://ohputer.com/router"
   url "${mac.url}"
   sha256 "${mac.sha256}"
   license any_of: ["MIT", "Apache-2.0"]

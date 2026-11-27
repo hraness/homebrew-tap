@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# Binary distribution of oh-router from immutable ohrouter.com release archives.
+# Binary distribution of oh-router from immutable ohputer.com/router release archives.
 # Regenerate checksums/versions with: node tools/oh-router-formula.mjs --refresh
 class OhRouter < Formula
   desc "Session router, terminal safety guard and board worker for coding agents"
-  homepage "https://ohrouter.com"
+  homepage "https://ohputer.com/router"
   url "https://ohrouter.com/downloads/4010a9b36cff7f7d5d5ca494ad4656da1b3e00e6bf1de7668a0bd6b998ccc6bb/oh-router-v0.1.9-aarch64-apple-darwin.tar.gz"
   sha256 "4010a9b36cff7f7d5d5ca494ad4656da1b3e00e6bf1de7668a0bd6b998ccc6bb"
   license any_of: ["MIT", "Apache-2.0"]
