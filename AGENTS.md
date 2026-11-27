@@ -25,3 +25,8 @@ Sponge CLI releases use the separate `sponge-cli-vMAJOR.MINOR.PATCH` namespace,
 starting at 0.99.0. The distributor may publish the qualified public npm
 package here before npm lists that version. Keep the tarball and its single
 checksum as the only assets. See [Sponge CLI distribution](docs/sponge-cli-distribution.md).
+
+The presence formula follows hraness/presence's latest GitHub release through
+`tools/presence-formula.mjs` and the scheduled `Update presence` workflow, which
+also verifies the archive's build provenance. Edit the generator, never the
+checksum.
