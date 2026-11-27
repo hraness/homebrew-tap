@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
   "product": "oh-router",
-  "version": "0.1.9",
+  "version": "0.1.13",
   "targets": {
     "aarch64-apple-darwin": {
-      "sha256": "4010a9b36cff7f7d5d5ca494ad4656da1b3e00e6bf1de7668a0bd6b998ccc6bb",
-      "url": "https://ohrouter.com/downloads/4010a9b36cff7f7d5d5ca494ad4656da1b3e00e6bf1de7668a0bd6b998ccc6bb/oh-router-v0.1.9-aarch64-apple-darwin.tar.gz"
+      "sha256": "6cdd46f26580b50eecaa23c25c1646645534bc1423a90e277abdb538c7344d4e",
+      "url": "https://ohputer.com/router/downloads/6cdd46f26580b50eecaa23c25c1646645534bc1423a90e277abdb538c7344d4e/oh-router-v0.1.13-aarch64-apple-darwin.tar.gz"
     },
     "x86_64-apple-darwin": {
-      "sha256": "fff3b7e223d919a2e7a567a21ccab2c5e65df39a6dde62099f4838f396ddaf26",
-      "url": "https://ohrouter.com/downloads/fff3b7e223d919a2e7a567a21ccab2c5e65df39a6dde62099f4838f396ddaf26/oh-router-v0.1.9-x86_64-apple-darwin.tar.gz"
+      "sha256": "75425636e750f481f774fb58cef01f0d9b3018ce7a4b96466ac5ee410fa437c8",
+      "url": "https://ohputer.com/router/downloads/75425636e750f481f774fb58cef01f0d9b3018ce7a4b96466ac5ee410fa437c8/oh-router-v0.1.13-x86_64-apple-darwin.tar.gz"
     },
     "x86_64-unknown-linux-gnu": {
-      "sha256": "25dc284fcb2f0583e415a1c140df34572668b53550c34b3e967fb8cf84a2be33",
-      "url": "https://ohrouter.com/downloads/25dc284fcb2f0583e415a1c140df34572668b53550c34b3e967fb8cf84a2be33/oh-router-v0.1.9-x86_64-unknown-linux-gnu.tar.gz"
+      "sha256": "29aa5167148ab754cedfdcbc833b42398fa29764a3680aa3ec8a1cac965628eb",
+      "url": "https://ohputer.com/router/downloads/29aa5167148ab754cedfdcbc833b42398fa29764a3680aa3ec8a1cac965628eb/oh-router-v0.1.13-x86_64-unknown-linux-gnu.tar.gz"
     },
     "aarch64-unknown-linux-musl": {
-      "sha256": "1023c9635999f17b2fe118106d340c512bb439b01f855f0618c7b043c941d98d",
-      "url": "https://ohrouter.com/downloads/1023c9635999f17b2fe118106d340c512bb439b01f855f0618c7b043c941d98d/oh-router-v0.1.9-aarch64-unknown-linux-musl.tar.gz"
+      "sha256": "8c264fd2e0a335b5152463cd6b253859a22bb90733ac40989a51e3daa2ca0f76",
+      "url": "https://ohputer.com/router/downloads/8c264fd2e0a335b5152463cd6b253859a22bb90733ac40989a51e3daa2ca0f76/oh-router-v0.1.13-aarch64-unknown-linux-musl.tar.gz"
     }
   }
 }
